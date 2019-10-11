@@ -1,2 +1,3 @@
-# soft-eng-2019
-Software Engineering - IFE 2019
+# Mobile fitness app - Software Engineering project
+Lodz University of Technology
+International Faculty of Engineering 2019
