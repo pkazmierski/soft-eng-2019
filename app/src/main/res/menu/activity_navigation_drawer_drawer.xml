@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+
+    <group
+        android:id="@+id/nav_group_fitness"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_dishes"
+            android:icon="@drawable/ic_dishes_black_24dp"
+            android:title="@string/dishes" />
+        <item
+            android:id="@+id/nav_exercises"
+            android:icon="@drawable/ic_exercises_black_24dp"
+            android:title="@string/exercises" />
+        <item
+            android:id="@+id/nav_gcalendar_export"
+            android:icon="@drawable/ic_calendar_black_24dp"
+            android:title="@string/googleCalendarExport" />
+        <item
+            android:id="@+id/nav_gyms"
+            android:icon="@drawable/ic_gyms_black_24dp"
+            android:title="@string/gyms" />
+    </group>
+
+
+    <group
+        android:id="@+id/nav_group_data"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_personal_data"
+            android:icon="@drawable/ic_personal_data_black_24dp"
+            android:title="@string/personal_data" />
+
+        <item
+            android:id="@+id/nav_preferences"
+            android:icon="@drawable/ic_preferences_black_24dp"
+            android:title="@string/preferences" />
+    </group>
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_logoff"
+            android:icon="@drawable/ic_key_black_24dp"
+            android:title="@string/logOff" />
+    </group>
+
+
+    <item android:title="">
+
+
+    </item>
+
+
+</menu>

@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Fitness App</string>
+    <string name="title_activity_navigation_drawer">Fitness App</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Fitness App</string>
+    <string name="nav_header_subtitle">TUL 2019/2020</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="data">Data</string>
+    <string name="user">User</string>
+    <string name="fitness">Fitness</string>
+
+    <string name="exercises">Exercises</string>
+    <string name="dishes">Dishes</string>
+    <string name="preferences">Preferences</string>
+    <string name="personal_data">Personal data</string>
+    <string name="logOff">Log off</string>
+    <string name="googleCalendarExport">Google Calendar</string>
+    <string name="gyms">Gyms</string>
 </resources>
