@@ -21,7 +21,11 @@ public class Dish implements IEvent {
 	 * @param type
 	 */
 	public Dish(String name, String content, int calories, List<DishIngredient> ingredients, DishType type) {
-
+		this.name = name;
+		this.content = content;
+		this.calories = calories;
+		this.ingredients = ingredients;
+		this.type = type;
 	}
 
 	@Override
@@ -94,4 +98,19 @@ public class Dish implements IEvent {
 		this.type = type;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder toReturn = new StringBuilder("Dish{" +
+				"name='" + name + '\'' +
+				", content='" + content + '\'' +
+				", calories=" + calories +
+				", type=" + type +
+				", ingredients=[");
+		for (DishIngredient ing : ingredients) {
+			toReturn.append(ing.getName()).append(" ").append(ing.getAmount()).append(" ").append(ing.getUnit().toString()).append(", ");
+		}
+
+		toReturn.append("]}");
+		return toReturn.toString();
+	}
 }

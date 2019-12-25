@@ -35,8 +35,15 @@ public class DatabaseIngredient {
 	 * @param name
 	 */
 	public DatabaseIngredient(String id, String name) {
-		// TODO - implement DatabaseIngredient.DatabaseIngredient
-		throw new UnsupportedOperationException();
+		this.id = id;
+		this.name = name;
 	}
 
+	@Override
+	public String toString() {
+		return "DatabaseIngredient{" +
+				"id='" + id + '\'' +
+				", name='" + name + '\'' +
+				'}';
+	}
 }

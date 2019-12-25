@@ -6,5 +6,6 @@ public enum Unit {
 	LITERS,
 	MILLILITERS,
 	UNIT,
-	PACKET
+	PACKET,
+	SLICE
 }

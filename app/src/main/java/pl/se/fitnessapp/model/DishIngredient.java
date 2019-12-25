@@ -13,21 +13,16 @@ public class DishIngredient {
 	 * @param unit
 	 */
 	public DishIngredient(DatabaseIngredient dbIngredient, double amount, Unit unit) {
-
+		this.dbIngredient = dbIngredient;
+		this.amount = amount;
+		this.unit = unit;
 	}
 
 	public String getName() {
-		// TODO - implement DishIngredient.getName
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * 
-	 * @param name
-	 */
-	public void setName(String name) {
-		// TODO - implement DishIngredient.setName
-		throw new UnsupportedOperationException();
+		if(dbIngredient != null)
+			return dbIngredient.getName();
+		else
+			return "MISSING_dbIngredient";
 	}
 
 	public double getAmount() {
@@ -54,4 +49,24 @@ public class DishIngredient {
 		this.unit = unit;
 	}
 
+	public DatabaseIngredient getDbIngredient() {
+		return this.dbIngredient;
+	}
+
+	/**
+	 *
+	 * @param dbIngredient
+	 */
+	public void setDbIngredient(DatabaseIngredient dbIngredient) {
+		this.dbIngredient = dbIngredient;
+	}
+
+	@Override
+	public String toString() {
+		return "DishIngredient{" +
+				"dbIngredient=" + dbIngredient +
+				", amount=" + amount +
+				", unit=" + unit +
+				'}';
+	}
 }
