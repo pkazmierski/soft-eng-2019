@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 import pl.se.fitnessapp.model.DatabaseIngredient;
 import pl.se.fitnessapp.model.Dish;
-import pl.se.fitnessapp.model.DishIngredient;
+import pl.se.fitnessapp.model.LocalIngredient;
 import pl.se.fitnessapp.model.DishType;
 import pl.se.fitnessapp.model.Exercise;
 import pl.se.fitnessapp.model.Personal;
@@ -46,7 +46,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
         return instance;
     }
 
-    private List<DishIngredient> getDishIngredients(final List<String> dbIngredientsStrings, final List<DatabaseIngredient> dbIngredients) {
+    private List<LocalIngredient> getLocalIngredients(final List<String> dbIngredientsStrings, final List<DatabaseIngredient> dbIngredients) {
         final int methodNameLength = new Object() {}
                 .getClass()
                 .getEnclosingMethod()
@@ -56,7 +56,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .getEnclosingMethod()
                 .getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
 
-        List<DishIngredient> dishIngredientsToReturn = new ArrayList<>();
+        List<LocalIngredient> localIngredientsToReturn = new ArrayList<>();
 
         if (dbIngredients.size() > 0) {
             for (String dbIngredientString : dbIngredientsStrings) {
@@ -75,7 +75,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 if (dbIngredient == null)
                     dbIngredient = new DatabaseIngredient("NULL_ID", "NULL_NAME");
 
-                //make new DishIngredient with data from string and name from DatabaseIngredient
+                //make new LocalIngredient with data from string and name from DatabaseIngredient
                 double amount = 0.0;
                 Unit unit = Unit.UNIT;
                 try {
@@ -87,18 +87,17 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                     Log.e(methodName, e.getLocalizedMessage());
                 }
 
-                DishIngredient currentIngredient = new DishIngredient(dbIngredient, amount, unit);
+                LocalIngredient currentIngredient = new LocalIngredient(dbIngredient.getId(), dbIngredient.getName(), amount, unit);
 
-                //add it to the dishIngredientsStorage
-                dishIngredientsToReturn.add(currentIngredient);
+                localIngredientsToReturn.add(currentIngredient);
             }
 
-            return dishIngredientsToReturn;
+            return localIngredientsToReturn;
         } else {
             DatabaseIngredient dbIngredient = new DatabaseIngredient("NULL_ID", "NULL_NAME");
-            DishIngredient currentIngredient = new DishIngredient(dbIngredient, 0.0, Unit.UNIT);
+            LocalIngredient currentIngredient = new LocalIngredient(dbIngredient.getId(), dbIngredient.getName(), 0.0, Unit.UNIT);
 
-            return dishIngredientsToReturn;
+            return localIngredientsToReturn;
         }
     }
 
@@ -137,8 +136,8 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                             @Override
                             public void run() {
                                 for (final ListDishsQuery.Item dbDish : response.data().listDishs().items()) { //go through every dish from the response
-                                    List<DishIngredient> currentDishIngredients = getDishIngredients(dbDish.ingredients(), databaseIngredients);
-                                    dishesStorage.add(new Dish(dbDish.name(), dbDish.content(), dbDish.calories(), currentDishIngredients, DishType.valueOf(dbDish.type())));
+                                    List<LocalIngredient> currentLocalIngredients = getLocalIngredients(dbDish.ingredients(), databaseIngredients);
+                                    dishesStorage.add(new Dish(dbDish.id(), dbDish.name(), dbDish.content(), dbDish.calories(), currentLocalIngredients, DishType.valueOf(dbDish.type())));
                                 }
 
                                 if (onSuccess != null) {
@@ -307,8 +306,8 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
         };
 
         List<String> ingredientsSerialized = new ArrayList<>();
-        for (DishIngredient ing : dish.getIngredients()) {
-            ingredientsSerialized.add(ing.getDbIngredient().getId() + "," + ing.getAmount() + "," + ing.getUnit().toString());
+        for (LocalIngredient ing : dish.getIngredients()) {
+            ingredientsSerialized.add(ing.getId() + "," + ing.getAmount() + "," + ing.getUnit().toString());
         }
 
         CreateDishInput createDishInput = CreateDishInput.builder()

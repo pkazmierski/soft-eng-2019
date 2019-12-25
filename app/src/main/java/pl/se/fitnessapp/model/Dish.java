@@ -6,10 +6,11 @@ import java.util.List;
 
 public class Dish implements IEvent {
 
+	private String id;
 	private String name;
 	private String content;
 	private int calories;
-	private List<DishIngredient> ingredients;
+	private List<LocalIngredient> ingredients;
 	private DishType type;
 
 	/**
@@ -20,7 +21,8 @@ public class Dish implements IEvent {
 	 * @param ingredients
 	 * @param type
 	 */
-	public Dish(String name, String content, int calories, List<DishIngredient> ingredients, DishType type) {
+	public Dish(String id, String name, String content, int calories, List<LocalIngredient> ingredients, DishType type) {
+		this.id = id;
 		this.name = name;
 		this.content = content;
 		this.calories = calories;
@@ -33,6 +35,14 @@ public class Dish implements IEvent {
 		return null;
 	}
 
+	public String getId() {
+		return this.id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return this.name;
 	}
@@ -42,10 +52,6 @@ public class Dish implements IEvent {
 		return null;
 	}
 
-	/**
-	 * 
-	 * @param name
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -54,10 +60,6 @@ public class Dish implements IEvent {
 		return this.content;
 	}
 
-	/**
-	 * 
-	 * @param content
-	 */
 	public void setContent(String content) {
 		this.content = content;
 	}
@@ -66,23 +68,15 @@ public class Dish implements IEvent {
 		return this.calories;
 	}
 
-	/**
-	 * 
-	 * @param calories
-	 */
 	public void setCalories(int calories) {
 		this.calories = calories;
 	}
 
-	public List<DishIngredient> getIngredients() {
+	public List<LocalIngredient> getIngredients() {
 		return this.ingredients;
 	}
 
-	/**
-	 * 
-	 * @param ingredients
-	 */
-	public void setIngredients(List<DishIngredient> ingredients) {
+	public void setIngredients(List<LocalIngredient> ingredients) {
 		this.ingredients = ingredients;
 	}
 
@@ -90,10 +84,6 @@ public class Dish implements IEvent {
 		return this.type;
 	}
 
-	/**
-	 * 
-	 * @param type
-	 */
 	public void setType(DishType type) {
 		this.type = type;
 	}
@@ -101,12 +91,13 @@ public class Dish implements IEvent {
 	@Override
 	public String toString() {
 		StringBuilder toReturn = new StringBuilder("Dish{" +
-				"name='" + name + '\'' +
+				"id='" + id + '\'' +
+				", name='" + name + '\'' +
 				", content='" + content + '\'' +
 				", calories=" + calories +
 				", type=" + type +
 				", ingredients=[");
-		for (DishIngredient ing : ingredients) {
+		for (LocalIngredient ing : ingredients) {
 			toReturn.append(ing.getName()).append(" ").append(ing.getAmount()).append(" ").append(ing.getUnit().toString()).append(", ");
 		}
 
