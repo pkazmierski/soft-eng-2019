@@ -5,10 +5,10 @@ import android.content.Context;
 
 public class App extends Application {
 
-    private static Application sApplication;
+    private static Application instance;
 
     public static Application getApplication() {
-        return sApplication;
+        return instance;
     }
 
     public static Context getContext() {
@@ -18,6 +18,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        sApplication = this;
+        instance = this;
     }
 }
