@@ -12,6 +12,7 @@ import pl.se.fitnessapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -11,7 +11,7 @@ public class Preferences {
 	private MealSchedule mealSchedule;
 
 	/**
-	 * 
+	 *
 	 * @param exerciseTime
 	 * @param dietType
 	 * @param exerciseDuration
@@ -27,7 +27,7 @@ public class Preferences {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param exerciseTime
 	 */
 	public void setExerciseTime(LocalTime exerciseTime) {
@@ -39,7 +39,7 @@ public class Preferences {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param exerciseDuration
 	 */
 	public void setExerciseDuration(Duration exerciseDuration) {
@@ -51,7 +51,7 @@ public class Preferences {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mealSchedule
 	 */
 	public void setMealSchedule(MealSchedule mealSchedule) {
@@ -66,9 +66,9 @@ public class Preferences {
 	public DietType getDietType() { return this.dietType; }
 
 	/**
-	 * 
-	 * @param diet
+	 *
+	 * @param dietType
 	 */
-	public void setDietType(DietType diet) { this.dietType = dietType; }
+	public void setDietType(DietType dietType) { this.dietType = dietType; }
 
 }
