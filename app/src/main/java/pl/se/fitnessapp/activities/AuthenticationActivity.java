@@ -1,4 +1,4 @@
-package pl.se.fitnessapp;
+package pl.se.fitnessapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,6 +10,8 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.SignInUIOptions;
 import com.amazonaws.mobile.client.UserStateDetails;
+
+import pl.se.fitnessapp.R;
 
 public class AuthenticationActivity extends AppCompatActivity {
 

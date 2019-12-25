@@ -1,4 +1,4 @@
-package pl.se.fitnessapp;
+package pl.se.fitnessapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
+
+import pl.se.fitnessapp.R;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package pl.se.fitnessapp;
+package pl.se.fitnessapp.util;
 
 import android.app.Application;
 import android.content.Context;
