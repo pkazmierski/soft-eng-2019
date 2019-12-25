@@ -10,13 +10,17 @@ import android.widget.TextView;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.data.AppSyncDb;
 import pl.se.fitnessapp.model.DatabaseIngredient;
+import pl.se.fitnessapp.model.Difficulty;
 import pl.se.fitnessapp.model.Dish;
+import pl.se.fitnessapp.model.Exercise;
+import pl.se.fitnessapp.model.Goal;
 import pl.se.fitnessapp.model.LocalIngredient;
 import pl.se.fitnessapp.model.DishType;
 import pl.se.fitnessapp.model.Unit;
@@ -37,7 +41,6 @@ public class MainActivity extends NavigationDrawerActivity {
         txtMainUserWelcomeMsg.setText("Welcome, " + AWSMobileClient.getInstance().getUsername() + ".");
 
         //add custom test code below
-        testReceivingDishes();
     }
 
 
@@ -87,6 +90,33 @@ public class MainActivity extends NavigationDrawerActivity {
     void addSomeIngredients() {
         AppSyncDb.getInstance().createDatabaseIngredient("Butter");
         AppSyncDb.getInstance().createDatabaseIngredient("Bread");
+    }
+
+    void addSomeExercises() {
+        Exercise exercise1 = new Exercise("", "Squats (test)", "Test squats content", Duration.ofMinutes(5), Difficulty.EASY, Goal.MUSCLES);
+        Exercise exercise2 = new Exercise("", "Running (test)", "Test running content", Duration.ofMinutes(60), Difficulty.MEDIUM, Goal.STAMINA);
+        AppSyncDb.getInstance().createExercise(exercise1);
+        AppSyncDb.getInstance().createExercise(exercise2);
+    }
+
+    void testReceivingExercises() {
+        final List<Exercise> exercises = new ArrayList<>();
+
+        Runnable exercisesrec = new Runnable() {
+            @Override
+            public void run() {
+                Log.d("exercises", exercises.toString());
+            }
+        };
+
+        Runnable exercisesfail = new Runnable() {
+            @Override
+            public void run() {
+                Log.e("exercises", "FAILED TO PROCESS THE exercises");
+            }
+        };
+
+        AppSyncDb.getInstance().getExercises(exercisesrec, exercisesfail, exercises);
     }
 
 }

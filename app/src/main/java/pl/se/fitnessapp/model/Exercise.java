@@ -87,4 +87,15 @@ public class Exercise implements IEvent {
 		this.goal = goal;
 	}
 
+    @Override
+    public String toString() {
+        return "Exercise{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", content='" + content + '\'' +
+                ", duration=" + duration +
+                ", difficulty=" + difficulty +
+                ", goal=" + goal +
+                '}';
+    }
 }
