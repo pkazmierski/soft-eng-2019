@@ -7,11 +7,14 @@ import com.amazonaws.amplify.generated.graphql.CreateDatabaseIngredientMutation;
 import com.amazonaws.amplify.generated.graphql.CreateDishMutation;
 import com.amazonaws.amplify.generated.graphql.CreateExerciseMutation;
 import com.amazonaws.amplify.generated.graphql.CreatePersonalDataMutation;
+import com.amazonaws.amplify.generated.graphql.CreatePreferencesMutation;
 import com.amazonaws.amplify.generated.graphql.GetPersonalDataQuery;
+import com.amazonaws.amplify.generated.graphql.GetPreferencesQuery;
 import com.amazonaws.amplify.generated.graphql.ListDatabaseIngredientsQuery;
 import com.amazonaws.amplify.generated.graphql.ListDishsQuery;
 import com.amazonaws.amplify.generated.graphql.ListExercisesQuery;
 import com.amazonaws.amplify.generated.graphql.UpdatePersonalDataMutation;
+import com.amazonaws.amplify.generated.graphql.UpdatePreferencesMutation;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
@@ -19,20 +22,25 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import pl.se.fitnessapp.model.DatabaseIngredient;
+import pl.se.fitnessapp.model.DietType;
 import pl.se.fitnessapp.model.Difficulty;
 import pl.se.fitnessapp.model.Dish;
 import pl.se.fitnessapp.model.Goal;
 import pl.se.fitnessapp.model.LocalIngredient;
 import pl.se.fitnessapp.model.DishType;
 import pl.se.fitnessapp.model.Exercise;
+import pl.se.fitnessapp.model.MealSchedule;
 import pl.se.fitnessapp.model.Personal;
 import pl.se.fitnessapp.model.Preferences;
 import pl.se.fitnessapp.model.Sex;
@@ -42,8 +50,10 @@ import type.CreateDatabaseIngredientInput;
 import type.CreateDishInput;
 import type.CreateExerciseInput;
 import type.CreatePersonalDataInput;
+import type.CreatePreferencesInput;
 import type.ModelPersonalDataFilterInput;
 import type.UpdatePersonalDataInput;
+import type.UpdatePreferencesInput;
 
 @SuppressWarnings("ConstantConditions")
 public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPersonal {
@@ -310,7 +320,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
                     Runnable onExercisesSuccess = () -> {
                         List<Exercise> recommendedExercises = new ArrayList<>();
-                        if(pd.recommendedExercises() != null) {
+                        if (pd.recommendedExercises() != null) {
                             for (String exerciseId : pd.recommendedExercises()) {
                                 Exercise currentExercise = null;
                                 for (Exercise dbExercise : dbExercises) { //find Exercise object which matches the id
@@ -332,7 +342,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
                     Runnable onDishesSuccess = () -> {
                         List<Dish> recommendedDishes = new ArrayList<>();
-                        if(pd.recommendedDishes() != null) {
+                        if (pd.recommendedDishes() != null) {
                             for (String dishId : pd.recommendedDishes()) {
                                 Dish currentDish = null;
                                 for (Dish dbDish : dbDishes) { //find Dish object which matches the id
@@ -359,7 +369,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
                     Runnable onIngredientsDefinitonsSuccess = () -> {
                         List<DatabaseIngredient> allergicIngredients = new ArrayList<>();
-                        if(pd.allergies() != null) {
+                        if (pd.allergies() != null) {
                             for (String ingredientId : pd.allergies()) {
                                 DatabaseIngredient currentIngredient = null;
                                 for (DatabaseIngredient dbIngredient : dbIngredients) { //find DatabseIngredient object which matches the id
@@ -557,17 +567,179 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
     @Override
     public void getPreferences(final Runnable onSuccess, final Runnable onFailure, Preferences preferencesStorage) {
+        if (preferencesStorage == null)
+            throw new IllegalArgumentException("preferencesStorage cannot be null");
 
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<GetPreferencesQuery.Data> getPreferencesCallback = new GraphQLCall.Callback<GetPreferencesQuery.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<GetPreferencesQuery.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().getPreferences() != null) {
+                    GetPreferencesQuery.GetPreferences pf = response.data().getPreferences();
+
+                    if (pf.dietType() != null && !pf.dietType().isEmpty())
+                        preferencesStorage.setDietType(DietType.valueOf(pf.dietType()));
+
+                    if (pf.exerciseDuration() != null)
+                        preferencesStorage.setExerciseDuration(Duration.ofSeconds(pf.exerciseDuration()));
+
+                    if (pf.exerciseTime() != null)
+                        preferencesStorage.setExerciseTime(LocalTime.ofSecondOfDay(pf.exerciseTime()));
+
+                    if (pf.mealSchedule() != null) {
+                        MealSchedule mealSchedule = new MealSchedule();
+                        String[] tokens = pf.mealSchedule().split(",");
+
+                        if (tokens.length == 5) {
+                            mealSchedule.breakfast = LocalTime.ofSecondOfDay(Integer.valueOf(tokens[0]));
+                            mealSchedule.secondBreakfast = LocalTime.ofSecondOfDay(Integer.valueOf(tokens[1]));
+                            mealSchedule.dinner = LocalTime.ofSecondOfDay(Integer.valueOf(tokens[2]));
+                            mealSchedule.linner = LocalTime.ofSecondOfDay(Integer.valueOf(tokens[3]));
+                            mealSchedule.supper = LocalTime.ofSecondOfDay(Integer.valueOf(tokens[4]));
+
+                            preferencesStorage.setMealSchedule(mealSchedule);
+                        }
+                    }
+
+                    if (onSuccess != null)
+                        onSuccess.run();
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        appSyncClient.query(GetPreferencesQuery.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .build())
+                .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
+                .enqueue(getPreferencesCallback);
     }
 
     @Override
     public void updatePreferences(final Runnable onSuccess, final Runnable onFailure, Preferences preferencesStorage) {
+        if (preferencesStorage == null)
+            throw new IllegalArgumentException("preferencesStorage cannot be null");
 
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<UpdatePreferencesMutation.Data> updatePreferencesCallback = new GraphQLCall.Callback<UpdatePreferencesMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<UpdatePreferencesMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().updatePreferences() != null) {
+                    if (onSuccess != null)
+                        onSuccess.run();
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        MealSchedule ms = preferencesStorage.getMealSchedule();
+
+        String mealScheduleSerialized = ms.breakfast.toSecondOfDay() + "," +
+                ms.secondBreakfast.toSecondOfDay() + "," +
+                ms.dinner.toSecondOfDay() + "," +
+                ms.linner.toSecondOfDay() + "," +
+                ms.supper.toSecondOfDay();
+        UpdatePreferencesInput updatePreferencesInput = UpdatePreferencesInput.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .dietType(preferencesStorage.getDietType().toString())
+                .exerciseDuration(((int) preferencesStorage.getExerciseDuration().getSeconds()))
+                .exerciseTime(preferencesStorage.getExerciseTime().toSecondOfDay())
+                .mealSchedule(mealScheduleSerialized).build();
+
+        appSyncClient.mutate(UpdatePreferencesMutation.builder()
+                .input(updatePreferencesInput)
+                .build())
+                .enqueue(updatePreferencesCallback);
     }
 
     @Override
     public void createPreferences(final Runnable onSuccess, final Runnable onFailure, Preferences preferencesStorage) {
+        if (preferencesStorage == null)
+            throw new IllegalArgumentException("preferencesStorage cannot be null");
 
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<CreatePreferencesMutation.Data> createPreferencesCallback = new GraphQLCall.Callback<CreatePreferencesMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<CreatePreferencesMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().createPreferences() != null) {
+                    if (onSuccess != null)
+                        onSuccess.run();
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        MealSchedule ms = preferencesStorage.getMealSchedule();
+
+        String mealScheduleSerialized = ms.breakfast.toSecondOfDay() + "," +
+                ms.secondBreakfast.toSecondOfDay() + "," +
+                ms.dinner.toSecondOfDay() + "," +
+                ms.linner.toSecondOfDay() + "," +
+                ms.supper.toSecondOfDay();
+        CreatePreferencesInput createPreferencesInput = CreatePreferencesInput.builder()
+                .dietType(preferencesStorage.getDietType().toString())
+                .exerciseDuration(((int) preferencesStorage.getExerciseDuration().getSeconds()))
+                .exerciseTime(preferencesStorage.getExerciseTime().toSecondOfDay())
+                .mealSchedule(mealScheduleSerialized).build();
+
+        appSyncClient.mutate(CreatePreferencesMutation.builder()
+                .input(createPreferencesInput)
+                .build())
+                .enqueue(createPreferencesCallback);
     }
 
 

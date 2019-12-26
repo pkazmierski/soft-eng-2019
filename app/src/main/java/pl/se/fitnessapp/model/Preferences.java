@@ -10,26 +10,17 @@ public class Preferences {
 	private Duration exerciseDuration;
 	private MealSchedule mealSchedule;
 
-	/**
-	 *
-	 * @param exerciseTime
-	 * @param dietType
-	 * @param exerciseDuration
-	 * @param mealSchedule
-	 */
-	public Preferences(LocalTime exerciseTime, DietType dietType, Duration exerciseDuration, MealSchedule mealSchedule) {
-		// TODO - implement Preferences.Preferences
-		throw new UnsupportedOperationException();
+	public Preferences() {
+		this.exerciseTime = LocalTime.of(18,0);
+		this.dietType = DietType.STANDARD;
+		this.exerciseDuration = Duration.ofMinutes(30);
+		this.mealSchedule = new MealSchedule();
 	}
 
 	public LocalTime getExerciseTime() {
 		return this.exerciseTime;
 	}
 
-	/**
-	 *
-	 * @param exerciseTime
-	 */
 	public void setExerciseTime(LocalTime exerciseTime) {
 		this.exerciseTime = exerciseTime;
 	}
@@ -38,10 +29,6 @@ public class Preferences {
 		return this.exerciseDuration;
 	}
 
-	/**
-	 *
-	 * @param exerciseDuration
-	 */
 	public void setExerciseDuration(Duration exerciseDuration) {
 		this.exerciseDuration = exerciseDuration;
 	}
@@ -50,25 +37,22 @@ public class Preferences {
 		return this.mealSchedule;
 	}
 
-	/**
-	 *
-	 * @param mealSchedule
-	 */
 	public void setMealSchedule(MealSchedule mealSchedule) {
 		this.mealSchedule = mealSchedule;
 	}
 
-	public Preferences() {
-		// TODO - implement Preferences.Preferences
-		throw new UnsupportedOperationException();
-	}
-
 	public DietType getDietType() { return this.dietType; }
 
-	/**
-	 *
-	 * @param dietType
-	 */
 	public void setDietType(DietType dietType) { this.dietType = dietType; }
 
+
+	@Override
+	public String toString() {
+		return "Preferences{" +
+				"exerciseTime=" + exerciseTime +
+				", dietType=" + dietType +
+				", exerciseDuration=" + exerciseDuration +
+				", mealSchedule=" + mealSchedule +
+				'}';
+	}
 }

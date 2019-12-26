@@ -12,19 +12,23 @@ import android.widget.TextView;
 import com.amazonaws.mobile.client.AWSMobileClient;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.data.AppSyncDb;
 import pl.se.fitnessapp.model.DatabaseIngredient;
+import pl.se.fitnessapp.model.DietType;
 import pl.se.fitnessapp.model.Difficulty;
 import pl.se.fitnessapp.model.Dish;
 import pl.se.fitnessapp.model.Exercise;
 import pl.se.fitnessapp.model.Goal;
 import pl.se.fitnessapp.model.LocalIngredient;
 import pl.se.fitnessapp.model.DishType;
+import pl.se.fitnessapp.model.MealSchedule;
 import pl.se.fitnessapp.model.Personal;
+import pl.se.fitnessapp.model.Preferences;
 import pl.se.fitnessapp.model.Sex;
 import pl.se.fitnessapp.model.Unit;
 
@@ -44,7 +48,6 @@ public class MainActivity extends NavigationDrawerActivity {
         txtMainUserWelcomeMsg.setText("Welcome, " + AWSMobileClient.getInstance().getUsername() + ".");
 
         //add custom test code below
-        testReceivingPersonalData();
     }
 
 
@@ -163,5 +166,33 @@ public class MainActivity extends NavigationDrawerActivity {
         Runnable logGotPersonal = () -> Log.d("gotPersonalData", "created personal: " + personal.toString());
         Runnable logFailedPersonal = () -> Log.d("gotPersonalData", "failed to create personal: " + personal.toString());
         AppSyncDb.getInstance().getPersonal(logGotPersonal, logFailedPersonal, personal);
+    }
+
+    void createPreferences() {
+        Preferences preferences = new Preferences();
+        preferences.setExerciseTime(LocalTime.of(14, 30));
+        preferences.setExerciseDuration(Duration.ofMinutes(15));
+        preferences.setDietType(DietType.VEGETARIAN);
+        MealSchedule mealSchedule = new MealSchedule();
+        mealSchedule.breakfast = LocalTime.of(6, 30);
+        mealSchedule.secondBreakfast = LocalTime.of(10, 15);
+        mealSchedule.dinner = LocalTime.of(14, 0);
+        mealSchedule.linner = LocalTime.of(17, 30);
+        mealSchedule.supper = LocalTime.of(20, 0);
+        preferences.setMealSchedule(mealSchedule);
+
+        Runnable logPreferencesSuccess = () -> Log.d("createPreferences", "created: " + preferences.toString());
+        Runnable logPreferencesFailure = () -> Log.e("createPreferences", "failed: " + preferences.toString());
+
+        AppSyncDb.getInstance().createPreferences(logPreferencesSuccess, logPreferencesFailure, preferences);
+    }
+
+    void testReceivingPreferences() {
+        Preferences preferences = new Preferences();
+
+        Runnable logPreferencesSuccess = () -> Log.d("receivedPreferences", "received: " + preferences.toString());
+        Runnable logPreferencesFailure = () -> Log.e("receivedPreferences", "failed: " + preferences.toString());
+
+        AppSyncDb.getInstance().getPreferences(logPreferencesSuccess, logPreferencesFailure, preferences);
     }
 }
