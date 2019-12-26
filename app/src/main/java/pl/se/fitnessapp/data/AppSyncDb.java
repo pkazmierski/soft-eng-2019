@@ -86,7 +86,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
         return instance;
     }
 
-    private List<LocalIngredient> getLocalIngredients(final List<String> dbIngredientsStrings, final List<DatabaseIngredient> dbIngredients) {
+    private List<LocalIngredient> parseLocalIngredients(final List<String> dbIngredientsStrings, final List<DatabaseIngredient> dbIngredients) {
         final int methodNameLength = new Object() {
         }.getClass().getEnclosingMethod().getName().length();
         final String methodName = new Object() {
@@ -165,7 +165,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
                         Runnable onIngredientsDefinitonsSuccess = () -> {
                             for (final ListDishsQuery.Item dbDish : response.data().listDishs().items()) { //go through every dish from the response
-                                List<LocalIngredient> currentLocalIngredients = getLocalIngredients(dbDish.ingredients(), databaseIngredients);
+                                List<LocalIngredient> currentLocalIngredients = parseLocalIngredients(dbDish.ingredients(), databaseIngredients);
                                 dishesStorage.add(new Dish(dbDish.id(), dbDish.name(), dbDish.content(), dbDish.calories(), currentLocalIngredients, DishType.valueOf(dbDish.type())));
                             }
 
@@ -325,9 +325,11 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                     personalStorage.setGoal(Goal.values()[pd.goal()]);
                     personalStorage.setHeight(pd.height());
                     Location location = new Location("database");
-                    String[] tokens = pd.home().split(",");
-                    location.setLatitude(Double.valueOf(tokens[0]));
-                    location.setLongitude(Double.valueOf(tokens[1]));
+                    if(pd.home() != null) {
+                        String[] tokens = pd.home().split(",");
+                        location.setLatitude(Double.valueOf(tokens[0]));
+                        location.setLongitude(Double.valueOf(tokens[1]));
+                    }
                     personalStorage.setHome(location);
                     personalStorage.setPhysicalActivity(PhysicalActivity.values()[pd.physicalActivity()]);
                     personalStorage.setSex(Sex.values()[pd.sex() ? 1 : 0]);

@@ -18,6 +18,7 @@ import java.util.List;
 
 import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.data.AppSyncDb;
+import pl.se.fitnessapp.logic.DBProvider;
 import pl.se.fitnessapp.model.DatabaseIngredient;
 import pl.se.fitnessapp.model.DietType;
 import pl.se.fitnessapp.model.Difficulty;
@@ -49,8 +50,10 @@ public class MainActivity extends NavigationDrawerActivity {
         txtMainUserWelcomeMsg.setText("Welcome, " + AWSMobileClient.getInstance().getUsername() + ".");
 
         //add custom test code below
-//        updatePersonalData();
-        getPersonalData();
+        //updatePersonalData();
+        //getPersonalData();
+
+        //do not get too inspired by the functions below, please use DBProvider.getInstance() and then get the appropriate interface and then call the appropriate function
     }
 
 
