@@ -1,14 +1,18 @@
 package pl.se.fitnessapp.data;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.amazonaws.amplify.generated.graphql.CreateDatabaseIngredientMutation;
 import com.amazonaws.amplify.generated.graphql.CreateDishMutation;
 import com.amazonaws.amplify.generated.graphql.CreateExerciseMutation;
-import com.amazonaws.amplify.generated.graphql.GetExerciseQuery;
+import com.amazonaws.amplify.generated.graphql.CreatePersonalDataMutation;
+import com.amazonaws.amplify.generated.graphql.GetPersonalDataQuery;
 import com.amazonaws.amplify.generated.graphql.ListDatabaseIngredientsQuery;
 import com.amazonaws.amplify.generated.graphql.ListDishsQuery;
 import com.amazonaws.amplify.generated.graphql.ListExercisesQuery;
+import com.amazonaws.amplify.generated.graphql.UpdatePersonalDataMutation;
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
@@ -31,10 +35,15 @@ import pl.se.fitnessapp.model.DishType;
 import pl.se.fitnessapp.model.Exercise;
 import pl.se.fitnessapp.model.Personal;
 import pl.se.fitnessapp.model.Preferences;
+import pl.se.fitnessapp.model.Sex;
 import pl.se.fitnessapp.model.Unit;
+import pl.se.fitnessapp.util.RunFail;
 import type.CreateDatabaseIngredientInput;
 import type.CreateDishInput;
 import type.CreateExerciseInput;
+import type.CreatePersonalDataInput;
+import type.ModelPersonalDataFilterInput;
+import type.UpdatePersonalDataInput;
 
 @SuppressWarnings("ConstantConditions")
 public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPersonal {
@@ -104,8 +113,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
         }
     }
 
-    @Override
-    public void getDishes(final Runnable onSuccess, final Runnable onFailure, @Nonnull final List<Dish> dishesStorage) {
+    private void getDishes(final Runnable onSuccess, final Runnable onFailure, @Nonnull final List<Dish> dishesStorage, ResponseFetcher fetcher) {
         if (dishesStorage == null)
             throw new IllegalArgumentException("dishesStorage cannot be null");
 
@@ -131,21 +139,18 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
                         final List<DatabaseIngredient> databaseIngredients = new ArrayList<>();
 
-                        Runnable onIngredientsDefinitonsSuccess = new Runnable() {
-                            @Override
-                            public void run() {
-                                for (final ListDishsQuery.Item dbDish : response.data().listDishs().items()) { //go through every dish from the response
-                                    List<LocalIngredient> currentLocalIngredients = getLocalIngredients(dbDish.ingredients(), databaseIngredients);
-                                    dishesStorage.add(new Dish(dbDish.id(), dbDish.name(), dbDish.content(), dbDish.calories(), currentLocalIngredients, DishType.valueOf(dbDish.type())));
-                                }
+                        Runnable onIngredientsDefinitonsSuccess = () -> {
+                            for (final ListDishsQuery.Item dbDish : response.data().listDishs().items()) { //go through every dish from the response
+                                List<LocalIngredient> currentLocalIngredients = getLocalIngredients(dbDish.ingredients(), databaseIngredients);
+                                dishesStorage.add(new Dish(dbDish.id(), dbDish.name(), dbDish.content(), dbDish.calories(), currentLocalIngredients, DishType.valueOf(dbDish.type())));
+                            }
 
-                                if (onSuccess != null) {
-                                    onSuccess.run();
-                                }
+                            if (onSuccess != null) {
+                                onSuccess.run();
                             }
                         };
 
-                        if (response.fromCache()) //network response
+                        if (response.fromCache())
                             getIngredientsDefinitions(onIngredientsDefinitonsSuccess, onFailure, databaseIngredients, AppSyncResponseFetchers.CACHE_ONLY);
                         else
                             getIngredientsDefinitions(onIngredientsDefinitonsSuccess, onFailure, databaseIngredients, AppSyncResponseFetchers.NETWORK_ONLY);
@@ -165,8 +170,13 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
         appSyncClient.query(ListDishsQuery.builder()
                 .build())
-                .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
+                .responseFetcher(fetcher)
                 .enqueue(listFoodDefinitionsQueryCallback);
+    }
+
+    @Override
+    public void getDishes(final Runnable onSuccess, final Runnable onFailure, @Nonnull final List<Dish> dishesStorage) {
+        getDishes(onSuccess, onFailure, dishesStorage, AppSyncResponseFetchers.CACHE_AND_NETWORK);
     }
 
     private void getIngredientsDefinitions(final Runnable onSuccess, final Runnable onFailure, @Nonnull final List<DatabaseIngredient> dbIngredientsStorage, ResponseFetcher fetcher) {
@@ -219,8 +229,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
         getIngredientsDefinitions(onSuccess, onFailure, dbIngredientsStorage, AppSyncResponseFetchers.CACHE_AND_NETWORK);
     }
 
-    @Override
-    public void getExercises(final Runnable onSuccess, final Runnable onFailure, final List<Exercise> exercisesStorage) {
+    private void getExercises(final Runnable onSuccess, final Runnable onFailure, final List<Exercise> exercisesStorage, ResponseFetcher fetcher) {
         if (exercisesStorage == null)
             throw new IllegalArgumentException("exercisesStorage cannot be null");
 
@@ -258,23 +267,292 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
 
         appSyncClient.query(ListExercisesQuery.builder()
                 .build())
-                .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
+                .responseFetcher(fetcher)
                 .enqueue(getExercisesQueryCallback);
     }
 
     @Override
-    public void getPersonal(final Runnable onSuccess, final Runnable onFailure, Personal personalStorage) {
-
+    public void getExercises(final Runnable onSuccess, final Runnable onFailure, final List<Exercise> exercisesStorage) {
+        getExercises(onSuccess, onFailure, exercisesStorage, AppSyncResponseFetchers.CACHE_AND_NETWORK);
     }
 
     @Override
-    public void updatePersonal(final Runnable onSuccess, final Runnable onFailure, Personal personalStorage) {
+    public void getPersonal(final Runnable onSuccess, final Runnable onFailure, final Personal personalStorage) {
+        if (personalStorage == null)
+            throw new IllegalArgumentException("personalStorage cannot be null");
 
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<GetPersonalDataQuery.Data> getPersonalDataCallback = new GraphQLCall.Callback<GetPersonalDataQuery.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<GetPersonalDataQuery.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().getPersonalData() != null) {
+                    GetPersonalDataQuery.GetPersonalData pd = response.data().getPersonalData();
+
+                    personalStorage.setAge(pd.age());
+                    personalStorage.setBmi(pd.bmi());
+                    personalStorage.setGoal(Goal.values()[pd.goal()]);
+                    personalStorage.setHeight(pd.height());
+                    personalStorage.setHome(new Location(pd.home()));
+                    personalStorage.setPhysicalActivity(pd.physicalActivity());
+                    personalStorage.setSex(Sex.values()[pd.sex() ? 1 : 0]);
+
+                    final List<DatabaseIngredient> dbIngredients = new ArrayList<>();
+                    final List<Dish> dbDishes = new ArrayList<>();
+                    final List<Exercise> dbExercises = new ArrayList<>();
+
+                    Runnable onExercisesSuccess = () -> {
+                        List<Exercise> recommendedExercises = new ArrayList<>();
+                        if(pd.recommendedExercises() != null) {
+                            for (String exerciseId : pd.recommendedExercises()) {
+                                Exercise currentExercise = null;
+                                for (Exercise dbExercise : dbExercises) { //find Exercise object which matches the id
+                                    if (dbExercise.getId().equals(exerciseId)) {
+                                        currentExercise = dbExercise;
+                                        break;
+                                    }
+                                }
+                                if (currentExercise == null)
+                                    currentExercise = new Exercise();
+                                recommendedExercises.add(currentExercise);
+                            }
+                        }
+                        personalStorage.setRecommendedExercises(recommendedExercises);
+
+                        if (onSuccess != null)
+                            onSuccess.run();
+                    };
+
+                    Runnable onDishesSuccess = () -> {
+                        List<Dish> recommendedDishes = new ArrayList<>();
+                        if(pd.recommendedDishes() != null) {
+                            for (String dishId : pd.recommendedDishes()) {
+                                Dish currentDish = null;
+                                for (Dish dbDish : dbDishes) { //find Dish object which matches the id
+                                    if (dbDish.getId().equals(dishId)) {
+                                        currentDish = dbDish;
+                                        break;
+                                    }
+                                }
+                                if (currentDish == null)
+                                    currentDish = new Dish();
+                                recommendedDishes.add(currentDish);
+                            }
+                        }
+                        personalStorage.setRecommendedDishes(recommendedDishes);
+
+                        //get exercises
+                        if (response.fromCache())
+                            getExercises(onExercisesSuccess, new RunFail(onFailure, "failed to get exercises from cache"),
+                                    dbExercises, AppSyncResponseFetchers.CACHE_ONLY);
+                        else
+                            getExercises(onExercisesSuccess, new RunFail(onFailure, "failed to get exercises from network"),
+                                    dbExercises, AppSyncResponseFetchers.NETWORK_ONLY);
+                    };
+
+                    Runnable onIngredientsDefinitonsSuccess = () -> {
+                        List<DatabaseIngredient> allergicIngredients = new ArrayList<>();
+                        if(pd.allergies() != null) {
+                            for (String ingredientId : pd.allergies()) {
+                                DatabaseIngredient currentIngredient = null;
+                                for (DatabaseIngredient dbIngredient : dbIngredients) { //find DatabseIngredient object which matches the id
+                                    if (dbIngredient.getId().equals(ingredientId)) {
+                                        currentIngredient = dbIngredient;
+                                        break;
+                                    }
+                                }
+                                if (currentIngredient == null)
+                                    currentIngredient = new DatabaseIngredient("NULL_ID", "NULL_NAME");
+                                allergicIngredients.add(currentIngredient);
+                            }
+                        }
+                        personalStorage.setAllergies(allergicIngredients);
+
+                        //get dishes
+                        if (response.fromCache())
+                            getDishes(onDishesSuccess, new RunFail(onFailure, "failed to get dishes from cache"),
+                                    dbDishes, AppSyncResponseFetchers.CACHE_ONLY);
+                        else
+                            getDishes(onDishesSuccess, new RunFail(onFailure, "failed to get dishes from network"),
+                                    dbDishes, AppSyncResponseFetchers.NETWORK_ONLY);
+                    };
+
+                    //get ingredients
+                    if (response.fromCache())
+                        getIngredientsDefinitions(onIngredientsDefinitonsSuccess, new RunFail(onFailure, "failed to get ingredients from cache"),
+                                dbIngredients, AppSyncResponseFetchers.CACHE_ONLY);
+                    else
+                        getIngredientsDefinitions(onIngredientsDefinitonsSuccess, new RunFail(onFailure, "failed to get ingredients from network"),
+                                dbIngredients, AppSyncResponseFetchers.NETWORK_ONLY);
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        appSyncClient.query(GetPersonalDataQuery.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .build())
+                .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
+                .enqueue(getPersonalDataCallback);
     }
 
     @Override
-    public void createPersonal(final Runnable onSuccess, final Runnable onFailure, Personal personalStorage) {
+    public void updatePersonal(final Runnable onSuccess, final Runnable onFailure, Personal personal) {
+        if (personal == null)
+            throw new IllegalArgumentException("personalStorage cannot be null");
 
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<UpdatePersonalDataMutation.Data> updatePersonalDataCallback = new GraphQLCall.Callback<UpdatePersonalDataMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<UpdatePersonalDataMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().updatePersonalData() != null) {
+                    if (onSuccess != null)
+                        onSuccess.run();
+
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        List<String> allergicIngredientsIds = new ArrayList<>();
+        for (DatabaseIngredient ing : personal.getAllergies()) {
+            allergicIngredientsIds.add(ing.getId());
+        }
+
+        List<String> dishesIds = new ArrayList<>();
+        for (Exercise exercise : personal.getRecommendedExercises()) {
+            dishesIds.add(exercise.getId());
+        }
+
+        List<String> exercisesIds = new ArrayList<>();
+        for (Dish dish : personal.getRecommendedDishes()) {
+            exercisesIds.add(dish.getId());
+        }
+
+        UpdatePersonalDataInput createPersonalDataInput = UpdatePersonalDataInput.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .weight(personal.getWeight())
+                .height(personal.getHeight())
+                .bmi(personal.getBmi())
+                .goal(personal.getGoal().ordinal())
+                .sex(personal.getSex().ordinal() != 0)
+                .age(personal.getAge())
+                .physicalActivity(personal.getPhysicalActivity())
+                .home(personal.getHome().toString())
+                .allergies(allergicIngredientsIds)
+                .recommendedDishes(dishesIds)
+                .recommendedExercises(exercisesIds).build();
+
+        appSyncClient.mutate(UpdatePersonalDataMutation.builder()
+                .input(createPersonalDataInput)
+                .build())
+                .enqueue(updatePersonalDataCallback);
+    }
+
+    @Override
+    public void createPersonal(final Runnable onSuccess, final Runnable onFailure, Personal personal) {
+        if (personal == null)
+            throw new IllegalArgumentException("personalStorage cannot be null");
+
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<CreatePersonalDataMutation.Data> createPersonalDataCallback = new GraphQLCall.Callback<CreatePersonalDataMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<CreatePersonalDataMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().createPersonalData() != null) {
+                    if (onSuccess != null)
+                        onSuccess.run();
+
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        List<String> allergicIngredientsIds = new ArrayList<>();
+        for (DatabaseIngredient ing : personal.getAllergies()) {
+            allergicIngredientsIds.add(ing.getId());
+        }
+
+        List<String> dishesIds = new ArrayList<>();
+        for (Dish dish : personal.getRecommendedDishes()) {
+            dishesIds.add(dish.getId());
+        }
+
+        List<String> exercisesIds = new ArrayList<>();
+        for (Exercise exercise : personal.getRecommendedExercises()) {
+            exercisesIds.add(exercise.getId());
+        }
+
+        CreatePersonalDataInput createPersonalDataInput = CreatePersonalDataInput.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .weight(personal.getWeight())
+                .height(personal.getHeight())
+                .bmi(personal.getBmi())
+                .goal(personal.getGoal().ordinal())
+                .sex(personal.getSex().ordinal() != 0)
+                .age(personal.getAge())
+                .physicalActivity(personal.getPhysicalActivity())
+                .home(personal.getHome().toString())
+                .allergies(allergicIngredientsIds)
+                .recommendedDishes(dishesIds)
+                .recommendedExercises(exercisesIds).build();
+
+        appSyncClient.mutate(CreatePersonalDataMutation.builder()
+                .input(createPersonalDataInput)
+                .build())
+                .enqueue(createPersonalDataCallback);
     }
 
     @Override

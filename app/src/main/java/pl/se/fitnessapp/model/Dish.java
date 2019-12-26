@@ -2,6 +2,7 @@ package pl.se.fitnessapp.model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Dish implements IEvent {
@@ -28,6 +29,15 @@ public class Dish implements IEvent {
 		this.calories = calories;
 		this.ingredients = ingredients;
 		this.type = type;
+	}
+
+	public Dish() {
+		this.id = "NULL_ID";
+		this.name = "NULL_NAME";
+		this.content = "NULL_CONTENT";
+		this.calories = 0;
+		this.ingredients = new ArrayList<>();
+		this.type = DishType.BREAKFAST;
 	}
 
 	@Override

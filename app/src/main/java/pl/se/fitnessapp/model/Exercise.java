@@ -2,6 +2,7 @@ package pl.se.fitnessapp.model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Exercise implements IEvent {
 
@@ -27,6 +28,15 @@ public class Exercise implements IEvent {
 		this.duration = duration;
 		this.difficulty = difficulty;
 		this.goal = goal;
+	}
+
+	public Exercise() {
+		this.id = "NULL_ID";
+		this.name = "NULL_NAME";
+		this.content = "NULL_CONTENT";
+		this.duration = Duration.ZERO;
+		this.difficulty = Difficulty.EASY;
+		this.goal = Goal.MUSCLES;
 	}
 
 	@Override
