@@ -8,6 +8,7 @@ public class Personal {
 
 	private double weight;
 	private int height;
+	private double bmr;
 	private double bmi;
 	private Goal goal;
 	private Sex sex;
@@ -32,9 +33,9 @@ public class Personal {
 		this.height = height;
 	}
 
-	public double getBmi() { return this.bmi; }
+	public double getBmr() { return this.bmr; }
 
-	public void setBmi(double bmi) { this.bmi = bmi; }
+	public double getBmi() { return this.bmi; }
 
 	public Goal getGoal() {
 		return this.goal;
@@ -96,12 +97,42 @@ public class Personal {
 		this.recommendedExercises = recommendedExercises;
 	}
 
+	public void calculateAndSetBmr() {
+	    if(sex == Sex.MALE)
+	        bmr = 66.47 + (13.75 * weight) + (5.003 * height) - (6.755 * age);
+	    else
+            bmr = 655.1 + (9.563 * weight) + (1.85 * height) - (4.676 * age);
+
+	    switch(physicalActivity) {
+            case 0:
+                bmr *= 1.2;
+                break;
+            case 1:
+                bmr *= 1.375;
+                break;
+            case 2:
+                bmr *= 1.55;
+                break;
+            case 3:
+                bmr *= 1.725;
+                break;
+            case 4:
+                bmr *= 1.9;
+                break;
+        }
+    }
+
+	public void calculateAndSetBmi() {
+		bmi = weight / height / height * 10000;
+	}
+
 
     @Override
     public String toString() {
         return "Personal{" +
                 "weight=" + weight +
                 ", height=" + height +
+                ", bmr=" + bmr +
                 ", bmi=" + bmi +
                 ", goal=" + goal +
                 ", sex=" + sex +

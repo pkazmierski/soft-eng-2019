@@ -48,6 +48,7 @@ public class MainActivity extends NavigationDrawerActivity {
         txtMainUserWelcomeMsg.setText("Welcome, " + AWSMobileClient.getInstance().getUsername() + ".");
 
         //add custom test code below
+        getPersonalData();
     }
 
 
@@ -127,12 +128,13 @@ public class MainActivity extends NavigationDrawerActivity {
         Personal personal = new Personal();
         personal.setWeight(78);
         personal.setHeight(177);
-        personal.setBmi(1.855);
         personal.setGoal(Goal.MUSCLES);
         personal.setSex(Sex.MALE);
         personal.setAge(25);
         personal.setPhysicalActivity(1);
         personal.setHome(new Location("default"));
+        personal.calculateAndSetBmr();
+        personal.calculateAndSetBmi();
 
         List<DatabaseIngredient> allergies = new ArrayList<>();
         allergies.add(new DatabaseIngredient("bfabdaa6-5efa-4d52-a016-93cfa8c73829", "Cucumber"));
@@ -160,14 +162,15 @@ public class MainActivity extends NavigationDrawerActivity {
 
     void updatePersonalData() {
         Personal personal = new Personal();
-        personal.setWeight(120);
+        personal.setWeight(120.0);
         personal.setHeight(177);
-        personal.setBmi(1.855);
         personal.setGoal(Goal.MUSCLES);
         personal.setSex(Sex.MALE);
         personal.setAge(25);
         personal.setPhysicalActivity(1);
         personal.setHome(new Location("default"));
+        personal.calculateAndSetBmr();
+        personal.calculateAndSetBmi();
 
         List<DatabaseIngredient> allergies = new ArrayList<>();
         allergies.add(new DatabaseIngredient("bfabdaa6-5efa-4d52-a016-93cfa8c73829", "Cucumber"));
@@ -195,8 +198,8 @@ public class MainActivity extends NavigationDrawerActivity {
 
     void getPersonalData() {
         Personal personal = new Personal();
-        Runnable logGotPersonal = () -> Log.d("gotPersonalData", "created personal: " + personal.toString());
-        Runnable logFailedPersonal = () -> Log.d("gotPersonalData", "failed to create personal: " + personal.toString());
+        Runnable logGotPersonal = () -> Log.d("gotPersonalData", "got personal: " + personal.toString());
+        Runnable logFailedPersonal = () -> Log.d("gotPersonalData", "failed to get personal: " + personal.toString());
         AppSyncDb.getInstance().getPersonal(logGotPersonal, logFailedPersonal, personal);
     }
 

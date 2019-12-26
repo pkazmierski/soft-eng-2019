@@ -30,8 +30,6 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -64,7 +62,6 @@ import type.DeleteDishInput;
 import type.DeleteExerciseInput;
 import type.DeletePersonalDataInput;
 import type.DeletePreferencesInput;
-import type.ModelPersonalDataFilterInput;
 import type.UpdateDatabaseIngredientInput;
 import type.UpdateDishInput;
 import type.UpdateExerciseInput;
@@ -322,13 +319,19 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 } else if (!response.hasErrors() && response.data() != null && response.data().getPersonalData() != null) {
                     GetPersonalDataQuery.GetPersonalData pd = response.data().getPersonalData();
 
+                    personalStorage.setWeight(pd.weight());
                     personalStorage.setAge(pd.age());
-                    personalStorage.setBmi(pd.bmi());
                     personalStorage.setGoal(Goal.values()[pd.goal()]);
                     personalStorage.setHeight(pd.height());
-                    personalStorage.setHome(new Location(pd.home()));
+                    Location location = new Location("database");
+                    String[] tokens = pd.home().split(",");
+                    location.setLongitude(Double.valueOf(tokens[0]));
+                    location.setLatitude(Double.valueOf(tokens[1]));
+                    personalStorage.setHome(location);
                     personalStorage.setPhysicalActivity(pd.physicalActivity());
                     personalStorage.setSex(Sex.values()[pd.sex() ? 1 : 0]);
+                    personalStorage.calculateAndSetBmr();
+                    personalStorage.calculateAndSetBmi();
 
                     final List<DatabaseIngredient> dbIngredients = new ArrayList<>();
                     final List<Dish> dbDishes = new ArrayList<>();
@@ -490,16 +493,16 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
             exercisesIds.add(dish.getId());
         }
 
+        String home = personal.getHome().getLongitude() + "," + personal.getHome().getLatitude();
         UpdatePersonalDataInput createPersonalDataInput = UpdatePersonalDataInput.builder()
                 .id(AWSMobileClient.getInstance().getUsername())
                 .weight(personal.getWeight())
                 .height(personal.getHeight())
-                .bmi(personal.getBmi())
                 .goal(personal.getGoal().ordinal())
                 .sex(personal.getSex().ordinal() != 0)
                 .age(personal.getAge())
                 .physicalActivity(personal.getPhysicalActivity())
-                .home(personal.getHome().toString())
+                .home(home)
                 .allergies(allergicIngredientsIds)
                 .recommendedDishes(dishesIds)
                 .recommendedExercises(exercisesIds)
@@ -562,16 +565,16 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
             exercisesIds.add(exercise.getId());
         }
 
+        String home = personal.getHome().getLongitude() + "," + personal.getHome().getLatitude();
         CreatePersonalDataInput createPersonalDataInput = CreatePersonalDataInput.builder()
                 .id(AWSMobileClient.getInstance().getUsername())
                 .weight(personal.getWeight())
                 .height(personal.getHeight())
-                .bmi(personal.getBmi())
                 .goal(personal.getGoal().ordinal())
                 .sex(personal.getSex().ordinal() != 0)
                 .age(personal.getAge())
                 .physicalActivity(personal.getPhysicalActivity())
-                .home(personal.getHome().toString())
+                .home(home)
                 .allergies(allergicIngredientsIds)
                 .recommendedDishes(dishesIds)
                 .recommendedExercises(exercisesIds)
