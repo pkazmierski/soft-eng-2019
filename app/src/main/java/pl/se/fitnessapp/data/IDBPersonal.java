@@ -28,4 +28,11 @@ public interface IDBPersonal {
 	 */
 	void createPersonal(Runnable onSuccess, Runnable onFailure, Personal personalStorage);
 
+	/**
+	 *
+	 * @param onSuccess
+	 * @param onFailure
+	 */
+	void deletePersonal(Runnable onSuccess, Runnable onFailure);
+
 }

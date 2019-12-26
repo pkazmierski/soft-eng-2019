@@ -28,4 +28,10 @@ public interface IDBPreferences {
 	 */
 	void createPreferences(Runnable onSuccess, Runnable onFailure, Preferences preferencesStorage);
 
+	/**
+	 *
+	 * @param onSuccess
+	 * @param onFailure
+	 */
+	void deletePreferences(Runnable onSuccess, Runnable onFailure);
 }

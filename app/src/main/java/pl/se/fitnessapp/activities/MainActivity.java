@@ -55,27 +55,7 @@ public class MainActivity extends NavigationDrawerActivity {
 
 
     //random test/debug functions
-    void testReceivingDishes() {
-        final List<Dish> dishList = new ArrayList<>();
-
-        Runnable receivedDishes = new Runnable() {
-            @Override
-            public void run() {
-                Log.d("receivedDishes", dishList.toString());
-            }
-        };
-
-        Runnable receivedDishesFailure = new Runnable() {
-            @Override
-            public void run() {
-                Log.e("receivedDishes", "FAILED TO PROCESS THE DISHES");
-            }
-        };
-
-        AppSyncDb.getInstance().getDishes(receivedDishes, receivedDishesFailure, dishList);
-    }
-
-    void addSomeDishes() {
+    void createDishes() {
         List<LocalIngredient> dish1Ingredients = new ArrayList<>();
         dish1Ingredients.add(new LocalIngredient("a34c9513-1e20-40a2-8eed-d3ce67ea2651", "Bread", 1, Unit.SLICE));
         dish1Ingredients.add(new LocalIngredient("19755cae-e103-4799-95ef-4c97e90d842b", "Butter", 10, Unit.GRAMS));
@@ -94,19 +74,36 @@ public class MainActivity extends NavigationDrawerActivity {
         AppSyncDb.getInstance().createDish(dish2);
     }
 
-    void addSomeIngredients() {
+    void getDishes() {
+        final List<Dish> dishList = new ArrayList<>();
+
+        Runnable receivedDishes = () -> Log.d("receivedDishes", dishList.toString());
+
+        Runnable receivedDishesFailure = () -> Log.e("receivedDishes", "FAILED TO PROCESS THE DISHES");
+
+        AppSyncDb.getInstance().getDishes(receivedDishes, receivedDishesFailure, dishList);
+    }
+
+    void createDatabaseIngredients() {
         AppSyncDb.getInstance().createDatabaseIngredient("Butter");
         AppSyncDb.getInstance().createDatabaseIngredient("Bread");
     }
 
-    void addSomeExercises() {
+    void getDatabaseIngredients() {
+        List<DatabaseIngredient> databaseIngredients = new ArrayList<>();
+        Runnable gotIngredientsSuccess = () -> Log.d("getIngredients", databaseIngredients.toString());
+        Runnable gotIngredientsFailure = () -> Log.e("getIngredients", "FAILED TO PROCESS THE DISHES");
+        AppSyncDb.getInstance().getIngredientsDefinitions(gotIngredientsSuccess, gotIngredientsFailure, databaseIngredients);
+    }
+
+    void createExercises() {
         Exercise exercise1 = new Exercise("", "Squats (test)", "Test squats content", Duration.ofMinutes(5), Difficulty.EASY, Goal.MUSCLES);
         Exercise exercise2 = new Exercise("", "Running (test)", "Test running content", Duration.ofMinutes(60), Difficulty.MEDIUM, Goal.STAMINA);
         AppSyncDb.getInstance().createExercise(exercise1);
         AppSyncDb.getInstance().createExercise(exercise2);
     }
 
-    void testReceivingExercises() {
+    void getExercises() {
         final List<Exercise> exercises = new ArrayList<>();
 
         Runnable exercisesrec = new Runnable() {
@@ -161,7 +158,42 @@ public class MainActivity extends NavigationDrawerActivity {
         AppSyncDb.getInstance().createPersonal(logCreatePersonal, logFailedPersonal, personal);
     }
 
-    void testReceivingPersonalData() {
+    void updatePersonalData() {
+        Personal personal = new Personal();
+        personal.setWeight(120);
+        personal.setHeight(177);
+        personal.setBmi(1.855);
+        personal.setGoal(Goal.MUSCLES);
+        personal.setSex(Sex.MALE);
+        personal.setAge(25);
+        personal.setPhysicalActivity(1);
+        personal.setHome(new Location("default"));
+
+        List<DatabaseIngredient> allergies = new ArrayList<>();
+        allergies.add(new DatabaseIngredient("bfabdaa6-5efa-4d52-a016-93cfa8c73829", "Cucumber"));
+        allergies.add(new DatabaseIngredient("daeff1fd-f161-40eb-86f5-03cf42120e5b", "Ham"));
+        personal.setAllergies(allergies);
+
+        List<Dish> recommendedDishes = new ArrayList<>();
+        List<LocalIngredient> dishIngredients = new ArrayList<>();
+        dishIngredients.add(new LocalIngredient("a34c9513-1e20-40a2-8eed-d3ce67ea2651", "Bread", 1, Unit.SLICE));
+        dishIngredients.add(new LocalIngredient("19755cae-e103-4799-95ef-4c97e90d842b", "Butter", 10, Unit.GRAMS));
+        dishIngredients.add(new LocalIngredient("5ea51008-98e8-480c-8cd6-33ae56c373dc", "Cheese", 1, Unit.SLICE));
+        Dish dish = new Dish("9ed7fe54-898f-4380-bd34-9790f1d484c5", "Cheese sandwich", "Test cheese sandwich", 200, dishIngredients, DishType.SUPPER);
+        recommendedDishes.add(dish);
+        personal.setRecommendedDishes(recommendedDishes);
+
+        List<Exercise> recommendedExercises = new ArrayList<>();
+        Exercise exercise = new Exercise("4182a226-72cf-4e3c-89c5-fd9531ff5495", "Squats (test)", "Test squats content", Duration.ofMinutes(5), Difficulty.EASY, Goal.MUSCLES);
+        recommendedExercises.add(exercise);
+        personal.setRecommendedExercises(recommendedExercises);
+
+        Runnable logCreatePersonal = () -> Log.d("updatePersonalData", "updated personal: " + personal.toString());
+        Runnable logFailedPersonal = () -> Log.d("updatePersonalData", "failed to update personal: " + personal.toString());
+        AppSyncDb.getInstance().updatePersonal(logCreatePersonal, logFailedPersonal, personal);
+    }
+
+    void getPersonalData() {
         Personal personal = new Personal();
         Runnable logGotPersonal = () -> Log.d("gotPersonalData", "created personal: " + personal.toString());
         Runnable logFailedPersonal = () -> Log.d("gotPersonalData", "failed to create personal: " + personal.toString());
@@ -187,7 +219,26 @@ public class MainActivity extends NavigationDrawerActivity {
         AppSyncDb.getInstance().createPreferences(logPreferencesSuccess, logPreferencesFailure, preferences);
     }
 
-    void testReceivingPreferences() {
+    void updatePreferences() {
+        Preferences preferences = new Preferences();
+        preferences.setExerciseTime(LocalTime.of(14, 30));
+        preferences.setExerciseDuration(Duration.ofMinutes(15));
+        preferences.setDietType(DietType.VEGETARIAN);
+        MealSchedule mealSchedule = new MealSchedule();
+        mealSchedule.breakfast = LocalTime.of(6, 30);
+        mealSchedule.secondBreakfast = LocalTime.of(10, 15);
+        mealSchedule.dinner = LocalTime.of(15, 0);
+        mealSchedule.linner = LocalTime.of(18, 0);
+        mealSchedule.supper = LocalTime.of(20, 0);
+        preferences.setMealSchedule(mealSchedule);
+
+        Runnable logPreferencesSuccess = () -> Log.d("updatePreferences", "created: " + preferences.toString());
+        Runnable logPreferencesFailure = () -> Log.e("updatePreferences", "failed: " + preferences.toString());
+
+        AppSyncDb.getInstance().updatePreferences(logPreferencesSuccess, logPreferencesFailure, preferences);
+    }
+
+    void getPreferences() {
         Preferences preferences = new Preferences();
 
         Runnable logPreferencesSuccess = () -> Log.d("receivedPreferences", "received: " + preferences.toString());

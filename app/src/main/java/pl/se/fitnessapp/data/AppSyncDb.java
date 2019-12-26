@@ -8,11 +8,19 @@ import com.amazonaws.amplify.generated.graphql.CreateDishMutation;
 import com.amazonaws.amplify.generated.graphql.CreateExerciseMutation;
 import com.amazonaws.amplify.generated.graphql.CreatePersonalDataMutation;
 import com.amazonaws.amplify.generated.graphql.CreatePreferencesMutation;
+import com.amazonaws.amplify.generated.graphql.DeleteDatabaseIngredientMutation;
+import com.amazonaws.amplify.generated.graphql.DeleteDishMutation;
+import com.amazonaws.amplify.generated.graphql.DeleteExerciseMutation;
+import com.amazonaws.amplify.generated.graphql.DeletePersonalDataMutation;
+import com.amazonaws.amplify.generated.graphql.DeletePreferencesMutation;
 import com.amazonaws.amplify.generated.graphql.GetPersonalDataQuery;
 import com.amazonaws.amplify.generated.graphql.GetPreferencesQuery;
 import com.amazonaws.amplify.generated.graphql.ListDatabaseIngredientsQuery;
 import com.amazonaws.amplify.generated.graphql.ListDishsQuery;
 import com.amazonaws.amplify.generated.graphql.ListExercisesQuery;
+import com.amazonaws.amplify.generated.graphql.UpdateDatabaseIngredientMutation;
+import com.amazonaws.amplify.generated.graphql.UpdateDishMutation;
+import com.amazonaws.amplify.generated.graphql.UpdateExerciseMutation;
 import com.amazonaws.amplify.generated.graphql.UpdatePersonalDataMutation;
 import com.amazonaws.amplify.generated.graphql.UpdatePreferencesMutation;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -51,7 +59,15 @@ import type.CreateDishInput;
 import type.CreateExerciseInput;
 import type.CreatePersonalDataInput;
 import type.CreatePreferencesInput;
+import type.DeleteDatabaseIngredientInput;
+import type.DeleteDishInput;
+import type.DeleteExerciseInput;
+import type.DeletePersonalDataInput;
+import type.DeletePreferencesInput;
 import type.ModelPersonalDataFilterInput;
+import type.UpdateDatabaseIngredientInput;
+import type.UpdateDishInput;
+import type.UpdateExerciseInput;
 import type.UpdatePersonalDataInput;
 import type.UpdatePreferencesInput;
 
@@ -486,7 +502,8 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .home(personal.getHome().toString())
                 .allergies(allergicIngredientsIds)
                 .recommendedDishes(dishesIds)
-                .recommendedExercises(exercisesIds).build();
+                .recommendedExercises(exercisesIds)
+                .build();
 
         appSyncClient.mutate(UpdatePersonalDataMutation.builder()
                 .input(createPersonalDataInput)
@@ -557,12 +574,56 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .home(personal.getHome().toString())
                 .allergies(allergicIngredientsIds)
                 .recommendedDishes(dishesIds)
-                .recommendedExercises(exercisesIds).build();
+                .recommendedExercises(exercisesIds)
+                .build();
 
         appSyncClient.mutate(CreatePersonalDataMutation.builder()
                 .input(createPersonalDataInput)
                 .build())
                 .enqueue(createPersonalDataCallback);
+    }
+
+    @Override
+    public void deletePersonal(Runnable onSuccess, Runnable onFailure) {
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
+
+        GraphQLCall.Callback<DeletePersonalDataMutation.Data> deletePersonalDataCallback = new GraphQLCall.Callback<DeletePersonalDataMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<DeletePersonalDataMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().deletePersonalData() != null) {
+                    if (onSuccess != null)
+                        onSuccess.run();
+
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        DeletePersonalDataInput deletePersonalDataInput = DeletePersonalDataInput.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .build();
+
+        appSyncClient.mutate(DeletePersonalDataMutation.builder()
+                .input(deletePersonalDataInput)
+                .build())
+                .enqueue(deletePersonalDataCallback);
     }
 
     @Override
@@ -742,10 +803,51 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .enqueue(createPreferencesCallback);
     }
 
+    @Override
+    public void deletePreferences(Runnable onSuccess, Runnable onFailure) {
+        final int methodNameLength = new Object() {
+        }.getClass().getEnclosingMethod().getName().length();
+        final String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName().substring(0, methodNameLength < 23 ? methodNameLength : 22);
 
-    //admin functions
+        GraphQLCall.Callback<DeletePreferencesMutation.Data> deletePreferencesCallback = new GraphQLCall.Callback<DeletePreferencesMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<DeletePreferencesMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e(methodName, "onResponse: " + response.errors().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                } else if (!response.hasErrors() && response.data() != null && response.data().deletePreferences() != null) {
+                    if (onSuccess != null)
+                        onSuccess.run();
+                } else {
+                    Log.e(methodName, "Response contained nulls: " + response.data().toString());
+                    if (onFailure != null)
+                        onFailure.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(methodName, "onFailure: " + e.toString());
+                if (onFailure != null)
+                    onFailure.run();
+            }
+        };
+
+        DeletePreferencesInput deletePreferencesInput = DeletePreferencesInput.builder()
+                .id(AWSMobileClient.getInstance().getUsername())
+                .build();
+
+        appSyncClient.mutate(DeletePreferencesMutation.builder()
+                .input(deletePreferencesInput)
+                .build())
+                .enqueue(deletePreferencesCallback);
+    }
+
+    //admin functions - outside of documentation
     public void createDatabaseIngredient(String ingredientName) {
-        GraphQLCall.Callback<CreateDatabaseIngredientMutation.Data> createDatabaseIngredientMutationCallback = new GraphQLCall.Callback<CreateDatabaseIngredientMutation.Data>() {
+        GraphQLCall.Callback<CreateDatabaseIngredientMutation.Data> createDbIngredientCallback = new GraphQLCall.Callback<CreateDatabaseIngredientMutation.Data>() {
             @Override
             public void onResponse(@Nonnull Response<CreateDatabaseIngredientMutation.Data> response) {
                 if (response.hasErrors()) {
@@ -761,14 +863,69 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
             }
         };
 
-        CreateDatabaseIngredientInput createUserDataInput = CreateDatabaseIngredientInput.builder()
+        CreateDatabaseIngredientInput createDbIngredientInput = CreateDatabaseIngredientInput.builder()
                 .name(ingredientName)
                 .build();
 
         appSyncClient.mutate(CreateDatabaseIngredientMutation.builder()
-                .input(createUserDataInput)
+                .input(createDbIngredientInput)
                 .build())
-                .enqueue(createDatabaseIngredientMutationCallback);
+                .enqueue(createDbIngredientCallback);
+    }
+
+    public void updateDatabaseIngredient(DatabaseIngredient ing) {
+        GraphQLCall.Callback<UpdateDatabaseIngredientMutation.Data> updateDbIngredientCallback = new GraphQLCall.Callback<UpdateDatabaseIngredientMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<UpdateDatabaseIngredientMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e("updateDbIngredient", "onResponse: " + response.errors().toString());
+                } else {
+                    Log.d("updateDbIngredient", "onResponse: " + response.data().updateDatabaseIngredient().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e("updateDbIngredient", e.toString());
+            }
+        };
+
+        UpdateDatabaseIngredientInput updateDbIngredientInput = UpdateDatabaseIngredientInput.builder()
+                .id(ing.getId())
+                .name(ing.getName())
+                .build();
+
+        appSyncClient.mutate(UpdateDatabaseIngredientMutation.builder()
+                .input(updateDbIngredientInput)
+                .build())
+                .enqueue(updateDbIngredientCallback);
+    }
+
+    public void deleteDatabaseIngredient(DatabaseIngredient ing) {
+        GraphQLCall.Callback<DeleteDatabaseIngredientMutation.Data> deleteDbIngredientCallback = new GraphQLCall.Callback<DeleteDatabaseIngredientMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<DeleteDatabaseIngredientMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e("deleteDbIngredient", "onResponse: " + response.errors().toString());
+                } else {
+                    Log.d("deleteDbIngredient", "onResponse: " + response.data().deleteDatabaseIngredient().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e("deleteDbIngredient", e.toString());
+            }
+        };
+
+        DeleteDatabaseIngredientInput deleteDbIngredientInput = DeleteDatabaseIngredientInput.builder()
+                .id(ing.getId())
+                .build();
+
+        appSyncClient.mutate(DeleteDatabaseIngredientMutation.builder()
+                .input(deleteDbIngredientInput)
+                .build())
+                .enqueue(deleteDbIngredientCallback);
     }
 
     public void createDish(Dish dish) {
@@ -776,15 +933,15 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
             @Override
             public void onResponse(@Nonnull Response<CreateDishMutation.Data> response) {
                 if (response.hasErrors()) {
-                    Log.e("createDbIngredient", "onResponse: " + response.errors().toString());
+                    Log.e("createDish", "onResponse: " + response.errors().toString());
                 } else {
-                    Log.d("createDbIngredient", "onResponse: " + response.data().createDish().toString());
+                    Log.d("createDish", "onResponse: " + response.data().createDish().toString());
                 }
             }
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                Log.e("createDbIngredient", e.toString());
+                Log.e("createDish", e.toString());
             }
         };
 
@@ -805,6 +962,70 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .input(createDishInput)
                 .build())
                 .enqueue(createDishMutationCallback);
+    }
+
+    public void updateDish(Dish dish) {
+        GraphQLCall.Callback<UpdateDishMutation.Data> updateDishCallback = new GraphQLCall.Callback<UpdateDishMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<UpdateDishMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e("updateDish", "onResponse: " + response.errors().toString());
+                } else {
+                    Log.d("updateDish", "onResponse: " + response.data().updateDish().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e("updateDish", e.toString());
+            }
+        };
+
+        List<String> ingredientsSerialized = new ArrayList<>();
+        for (LocalIngredient ing : dish.getIngredients()) {
+            ingredientsSerialized.add(ing.getId() + "," + ing.getAmount() + "," + ing.getUnit().toString());
+        }
+
+        UpdateDishInput updateDishInput = UpdateDishInput.builder()
+                .id(dish.getId())
+                .calories(dish.getCalories())
+                .content(dish.getContent())
+                .name(dish.getName())
+                .type(dish.getType().toString())
+                .ingredients(ingredientsSerialized)
+                .build();
+
+        appSyncClient.mutate(UpdateDishMutation.builder()
+                .input(updateDishInput)
+                .build())
+                .enqueue(updateDishCallback);
+    }
+
+    public void deleteDish(Dish dish) {
+        GraphQLCall.Callback<DeleteDishMutation.Data> deleteDishCallback = new GraphQLCall.Callback<DeleteDishMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<DeleteDishMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e("deleteDish", "onResponse: " + response.errors().toString());
+                } else {
+                    Log.d("deleteDish", "onResponse: " + response.data().deleteDish().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e("deleteDish", e.toString());
+            }
+        };
+
+        DeleteDishInput deleteDishInput = DeleteDishInput.builder()
+                .id(dish.getId())
+                .build();
+
+        appSyncClient.mutate(DeleteDishMutation.builder()
+                .input(deleteDishInput)
+                .build())
+                .enqueue(deleteDishCallback);
     }
 
     public void createExercise(Exercise exercise) {
@@ -836,5 +1057,64 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .input(createExerciseInput)
                 .build())
                 .enqueue(createExerciseCallback);
+    }
+
+    public void updateExercise(Exercise exercise) {
+        GraphQLCall.Callback<UpdateExerciseMutation.Data> updateExerciseCallback = new GraphQLCall.Callback<UpdateExerciseMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<UpdateExerciseMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e("updateExercise", "onResponse: " + response.errors().toString());
+                } else {
+                    Log.d("updateExercise", "onResponse: " + response.data().updateExercise().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e("updateExercise", e.toString());
+            }
+        };
+
+        UpdateExerciseInput updateExerciseInput = UpdateExerciseInput.builder()
+                .id(exercise.getId())
+                .name(exercise.getName())
+                .content(exercise.getContent())
+                .difficulty(exercise.getDifficulty().ordinal())
+                .goal(exercise.getGoal().ordinal())
+                .duration(((int) exercise.getDuration().getSeconds()))
+                .build();
+
+        appSyncClient.mutate(UpdateExerciseMutation.builder()
+                .input(updateExerciseInput)
+                .build())
+                .enqueue(updateExerciseCallback);
+    }
+
+    public void deleteExercise(Exercise exercise) {
+        GraphQLCall.Callback<DeleteExerciseMutation.Data> deleteExerciseCallback = new GraphQLCall.Callback<DeleteExerciseMutation.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<DeleteExerciseMutation.Data> response) {
+                if (response.hasErrors()) {
+                    Log.e("deleteExercise", "onResponse: " + response.errors().toString());
+                } else {
+                    Log.d("deleteExercise", "onResponse: " + response.data().deleteExercise().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e("deleteExercise", e.toString());
+            }
+        };
+
+        DeleteExerciseInput deleteExerciseInput = DeleteExerciseInput.builder()
+                .id(exercise.getId())
+                .build();
+
+        appSyncClient.mutate(DeleteExerciseMutation.builder()
+                .input(deleteExerciseInput)
+                .build())
+                .enqueue(deleteExerciseCallback);
     }
 }
