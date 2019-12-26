@@ -28,6 +28,7 @@ import pl.se.fitnessapp.model.LocalIngredient;
 import pl.se.fitnessapp.model.DishType;
 import pl.se.fitnessapp.model.MealSchedule;
 import pl.se.fitnessapp.model.Personal;
+import pl.se.fitnessapp.model.PhysicalActivity;
 import pl.se.fitnessapp.model.Preferences;
 import pl.se.fitnessapp.model.Sex;
 import pl.se.fitnessapp.model.Unit;
@@ -48,6 +49,7 @@ public class MainActivity extends NavigationDrawerActivity {
         txtMainUserWelcomeMsg.setText("Welcome, " + AWSMobileClient.getInstance().getUsername() + ".");
 
         //add custom test code below
+//        updatePersonalData();
         getPersonalData();
     }
 
@@ -131,8 +133,11 @@ public class MainActivity extends NavigationDrawerActivity {
         personal.setGoal(Goal.MUSCLES);
         personal.setSex(Sex.MALE);
         personal.setAge(25);
-        personal.setPhysicalActivity(1);
-        personal.setHome(new Location("default"));
+        personal.setPhysicalActivity(PhysicalActivity.LIGHT);
+        Location location = new Location("local");
+        location.setLatitude(49.0);
+        location.setLongitude(47.0);
+        personal.setHome(location);
         personal.calculateAndSetBmr();
         personal.calculateAndSetBmi();
 
@@ -167,8 +172,12 @@ public class MainActivity extends NavigationDrawerActivity {
         personal.setGoal(Goal.MUSCLES);
         personal.setSex(Sex.MALE);
         personal.setAge(25);
-        personal.setPhysicalActivity(1);
-        personal.setHome(new Location("default"));
+        personal.setPhysicalActivity(PhysicalActivity.ACTIVE);
+        Location location = new Location("local");
+        location.setLatitude(49.0);
+        location.setLongitude(47.0);
+        personal.setHome(location);
+        personal.setHome(location);
         personal.calculateAndSetBmr();
         personal.calculateAndSetBmi();
 

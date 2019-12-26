@@ -48,6 +48,7 @@ import pl.se.fitnessapp.model.DishType;
 import pl.se.fitnessapp.model.Exercise;
 import pl.se.fitnessapp.model.MealSchedule;
 import pl.se.fitnessapp.model.Personal;
+import pl.se.fitnessapp.model.PhysicalActivity;
 import pl.se.fitnessapp.model.Preferences;
 import pl.se.fitnessapp.model.Sex;
 import pl.se.fitnessapp.model.Unit;
@@ -325,10 +326,10 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                     personalStorage.setHeight(pd.height());
                     Location location = new Location("database");
                     String[] tokens = pd.home().split(",");
-                    location.setLongitude(Double.valueOf(tokens[0]));
-                    location.setLatitude(Double.valueOf(tokens[1]));
+                    location.setLatitude(Double.valueOf(tokens[0]));
+                    location.setLongitude(Double.valueOf(tokens[1]));
                     personalStorage.setHome(location);
-                    personalStorage.setPhysicalActivity(pd.physicalActivity());
+                    personalStorage.setPhysicalActivity(PhysicalActivity.values()[pd.physicalActivity()]);
                     personalStorage.setSex(Sex.values()[pd.sex() ? 1 : 0]);
                     personalStorage.calculateAndSetBmr();
                     personalStorage.calculateAndSetBmi();
@@ -484,24 +485,24 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
         }
 
         List<String> dishesIds = new ArrayList<>();
-        for (Exercise exercise : personal.getRecommendedExercises()) {
-            dishesIds.add(exercise.getId());
+        for (Dish di : personal.getRecommendedDishes()) {
+            dishesIds.add(di.getId());
         }
 
         List<String> exercisesIds = new ArrayList<>();
-        for (Dish dish : personal.getRecommendedDishes()) {
-            exercisesIds.add(dish.getId());
+        for (Exercise exercise : personal.getRecommendedExercises()) {
+            exercisesIds.add(exercise.getId());
         }
 
         String home = personal.getHome().getLongitude() + "," + personal.getHome().getLatitude();
-        UpdatePersonalDataInput createPersonalDataInput = UpdatePersonalDataInput.builder()
+        UpdatePersonalDataInput updatePersonalDataInput = UpdatePersonalDataInput.builder()
                 .id(AWSMobileClient.getInstance().getUsername())
                 .weight(personal.getWeight())
                 .height(personal.getHeight())
                 .goal(personal.getGoal().ordinal())
                 .sex(personal.getSex().ordinal() != 0)
                 .age(personal.getAge())
-                .physicalActivity(personal.getPhysicalActivity())
+                .physicalActivity(personal.getPhysicalActivity().ordinal())
                 .home(home)
                 .allergies(allergicIngredientsIds)
                 .recommendedDishes(dishesIds)
@@ -509,7 +510,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .build();
 
         appSyncClient.mutate(UpdatePersonalDataMutation.builder()
-                .input(createPersonalDataInput)
+                .input(updatePersonalDataInput)
                 .build())
                 .enqueue(updatePersonalDataCallback);
     }
@@ -565,7 +566,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
             exercisesIds.add(exercise.getId());
         }
 
-        String home = personal.getHome().getLongitude() + "," + personal.getHome().getLatitude();
+        String home = personal.getHome().getLatitude() + "," + personal.getHome().getLongitude();
         CreatePersonalDataInput createPersonalDataInput = CreatePersonalDataInput.builder()
                 .id(AWSMobileClient.getInstance().getUsername())
                 .weight(personal.getWeight())
@@ -573,7 +574,7 @@ public class AppSyncDb implements IDBPreferences, IDBDishes, IDBExercises, IDBPe
                 .goal(personal.getGoal().ordinal())
                 .sex(personal.getSex().ordinal() != 0)
                 .age(personal.getAge())
-                .physicalActivity(personal.getPhysicalActivity())
+                .physicalActivity(personal.getPhysicalActivity().ordinal())
                 .home(home)
                 .allergies(allergicIngredientsIds)
                 .recommendedDishes(dishesIds)

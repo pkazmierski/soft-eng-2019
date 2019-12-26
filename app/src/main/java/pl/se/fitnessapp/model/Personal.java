@@ -13,7 +13,7 @@ public class Personal {
 	private Goal goal;
 	private Sex sex;
 	private int age;
-	private int physicalActivity;
+	private PhysicalActivity physicalActivity;
 	private Location home;
 	private List<DatabaseIngredient> allergies;
 	private List<Dish> recommendedDishes;
@@ -61,11 +61,11 @@ public class Personal {
 		this.age = age;
 	}
 
-	public int getPhysicalActivity() {
+	public PhysicalActivity getPhysicalActivity() {
 		return this.physicalActivity;
 	}
 
-	public void setPhysicalActivity(int physicalActivity) {
+	public void setPhysicalActivity(PhysicalActivity physicalActivity) {
 		this.physicalActivity = physicalActivity;
 	}
 
@@ -104,19 +104,19 @@ public class Personal {
             bmr = 655.1 + (9.563 * weight) + (1.85 * height) - (4.676 * age);
 
 	    switch(physicalActivity) {
-            case 0:
+			case SEDENTARY:
                 bmr *= 1.2;
                 break;
-            case 1:
+			case LIGHT:
                 bmr *= 1.375;
                 break;
-            case 2:
+			case MODERATE:
                 bmr *= 1.55;
                 break;
-            case 3:
+			case ACTIVE:
                 bmr *= 1.725;
                 break;
-            case 4:
+			case VERY_ACTIVE:
                 bmr *= 1.9;
                 break;
         }
