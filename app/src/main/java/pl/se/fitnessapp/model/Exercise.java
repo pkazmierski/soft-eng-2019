@@ -39,13 +39,10 @@ public class Exercise implements IEvent {
 		this.goal = Goal.MUSCLES;
 	}
 
+	//return today and set the hour according to exercisePeriod
 	@Override
 	public LocalDateTime getDate() {
-		return null;
-	}
-
-	@Override
-	public Duration getPreparationTime() {
+		//todo implement Exercise.getDate()
 		return null;
 	}
 
@@ -57,6 +54,7 @@ public class Exercise implements IEvent {
 		this.id = id;
 	}
 
+	@Override
 	public String getName() {
 		return this.name;
 	}

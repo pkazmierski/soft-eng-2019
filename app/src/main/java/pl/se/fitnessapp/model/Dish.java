@@ -40,9 +40,11 @@ public class Dish implements IEvent {
 		this.type = DishType.BREAKFAST;
 	}
 
+	//return today and set the hour according to MealSchedule
 	@Override
 	public LocalDateTime getDate() {
-		return null;
+		//todo implement Dish.getDate()
+	    return null;
 	}
 
 	public String getId() {
@@ -53,13 +55,9 @@ public class Dish implements IEvent {
 		this.id = id;
 	}
 
+	@Override
 	public String getName() {
 		return this.name;
-	}
-
-	@Override
-	public Duration getPreparationTime() {
-		return null;
 	}
 
 	public void setName(String name) {

@@ -9,6 +9,4 @@ public interface IEvent {
 
 	String getName();
 
-	Duration getPreparationTime();
-
 }
