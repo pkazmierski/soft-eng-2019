@@ -65,7 +65,7 @@ public class NavigationDrawerActivity extends AppCompatActivity implements Navig
                 //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));
                 break;
             case R.id.nav_gyms:
-                //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));
+                startActivity(new Intent(getApplicationContext(), MapPermissionActivity.class));
                 break;
             case R.id.nav_personal_data:
                 //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));

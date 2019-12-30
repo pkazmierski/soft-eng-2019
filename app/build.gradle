@@ -34,6 +34,14 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.0.0'
     implementation 'androidx.navigation:navigation-ui:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+
+    //map
+    implementation 'com.karumi:dexter:6.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.libraries.places:places:1.1.0'
+
+
     testImplementation 'junit:junit:4.12'
     //noinspection GradleDependency
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'

@@ -11,6 +11,7 @@ public interface IGyms {
 
 	List<Gym> getGyms();
 
+
 	Location getUserLocation();
 
 }
