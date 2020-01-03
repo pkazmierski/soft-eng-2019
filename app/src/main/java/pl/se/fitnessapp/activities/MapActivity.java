@@ -130,6 +130,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //                    getNearbyPlacesData.execute(DataTransfer);
 //
                     GymEngine gymEngine = new GymEngine();
+                    gymEngine.setLastKnownLocation(mLastKnownLocation);
                     gymEngine.execute(DataTransfer);
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));

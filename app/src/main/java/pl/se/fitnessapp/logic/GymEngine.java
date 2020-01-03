@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,182 +30,228 @@ import pl.se.fitnessapp.model.Gym;
 public class GymEngine extends AsyncTask<Object, String, String> implements IGyms {
 
 
-	//GetNearbyPlaces Data
-	String googlePlacesData;
-	GoogleMap mMap;
-	String url;
+    //GetNearbyPlaces Data
+    String googlePlacesData;
+    GoogleMap mMap;
+    String url;
+    List<Gym> gymsList;
+    private Location lastKnownLocation;
 
-	@Override
-	protected String doInBackground(Object... params) {
-		try {
-			Log.d("GetNearbyPlacesData", "doInBackground entered");
-			mMap = (GoogleMap) params[0];
-			url = (String) params[1];
-			DownloadUrl downloadUrl = new DownloadUrl();
-			googlePlacesData = downloadUrl.readUrl(url);
-			Log.d("GooglePlacesReadTask", "doInBackground Exit");
-		} catch (Exception e) {
-			Log.d("GooglePlacesReadTask", e.toString());
-		}
-		return googlePlacesData;
-	}
+    @Override
+    protected String doInBackground(Object... params) {
+        try {
+            Log.d("GetNearbyPlacesData", "doInBackground entered");
+            mMap = (GoogleMap) params[0];
+            url = (String) params[1];
+            DownloadUrl downloadUrl = new DownloadUrl();
+            googlePlacesData = downloadUrl.readUrl(url);
+            Log.d("GooglePlacesReadTask", "doInBackground Exit");
+        } catch (Exception e) {
+            Log.d("GooglePlacesReadTask", e.toString());
+        }
+        return googlePlacesData;
+    }
 
-	@Override
-	protected void onPostExecute(String result) {
-		Log.d("GooglePlacesReadTask", "onPostExecute Entered");
-		List<HashMap<String, String>> nearbyPlacesList = null;
-		DataParser dataParser = new DataParser();
-		nearbyPlacesList =  dataParser.parse(result);
-		ShowNearbyPlaces(nearbyPlacesList);
-		Log.d("GooglePlacesReadTask", "onPostExecute Exit");
-	}
+    @Override
+    protected void onPostExecute(String result) {
+        Log.d("GooglePlacesReadTask", "onPostExecute Entered");
+        List<HashMap<String, String>> nearbyPlacesList = null;
+        DataParser dataParser = new DataParser();
+        nearbyPlacesList = dataParser.parse(result);
+        ShowNearbyPlaces(nearbyPlacesList);
+        Log.d("GooglePlacesReadTask", "onPostExecute Exit");
+    }
 
-	private void ShowNearbyPlaces(List<HashMap<String, String>> nearbyPlacesList) {
-		for (int i = 0; i < nearbyPlacesList.size(); i++) {
-			Log.d("onPostExecute","Entered into showing locations");
-			MarkerOptions markerOptions = new MarkerOptions();
-			HashMap<String, String> googlePlace = nearbyPlacesList.get(i);
-			double lat = Double.parseDouble(googlePlace.get("lat"));
-			double lng = Double.parseDouble(googlePlace.get("lng"));
-			String placeName = googlePlace.get("place_name");
-			String vicinity = googlePlace.get("vicinity");
-			LatLng latLng = new LatLng(lat, lng);
-			markerOptions.position(latLng);
-			markerOptions.title(placeName + " : " + vicinity);
-			mMap.addMarker(markerOptions);
-			markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-			//move map camera
-			//mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-			mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-		}
-	}
+    private void ShowNearbyPlaces(List<HashMap<String, String>> nearbyPlacesList) {
+        for (int i = 0; i < nearbyPlacesList.size(); i++) {
+            Log.d("onPostExecute", "Entered into showing locations");
+            MarkerOptions markerOptions = new MarkerOptions();
+            HashMap<String, String> googlePlace = nearbyPlacesList.get(i);
+            double lat = Double.parseDouble(googlePlace.get("lat"));
+            double lng = Double.parseDouble(googlePlace.get("lng"));
+            String placeName = googlePlace.get("place_name");
+            String vicinity = googlePlace.get("vicinity");
+            LatLng latLng = new LatLng(lat, lng);
+            markerOptions.position(latLng);
+            markerOptions.title(placeName + " : " + vicinity);
+            mMap.addMarker(markerOptions);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            //move map camera
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        }
+    }
 
 
+    public GymEngine() {
+        this.gymsList = new ArrayList<>();
+    }
 
-	public GymEngine() {
-		// TODO - implement GymEngine.GymEngine
-		//throw new UnsupportedOperationException();
-	}
+    @Override
+    public List<Gym> getGyms() {
+        return gymsList;
+    }
 
-	@Override
-	public List<Gym> getGyms() {
-		return null;
-	}
+    @Override
+    public Location getUserLocation() {
+        return lastKnownLocation;
+    }
 
-	@Override
-	public Location getUserLocation() {
-		return null;
-	}
+    public void setLastKnownLocation(Location mLastKnownLocation) {
+        this.lastKnownLocation = mLastKnownLocation;
+    }
 
-	//DataParser internal class
-	private class DataParser {
-		public List<HashMap<String, String>> parse(String jsonData) {
-			JSONArray jsonArray = null;
-			JSONObject jsonObject;
+    //DataParser internal class
+    private class DataParser {
+        public List<HashMap<String, String>> parse(String jsonData) {
+            JSONArray jsonArray = null;
+            JSONObject jsonObject;
 
-			try {
-				Log.d("Places", "parse");
-				jsonObject = new JSONObject((String) jsonData);
-				jsonArray = jsonObject.getJSONArray("results");
-			} catch (JSONException e) {
-				Log.d("Places", "parse error");
-				e.printStackTrace();
-			}
-			return getPlaces(jsonArray);
-		}
+            try {
+                Log.d("Places", "parse");
+                jsonObject = new JSONObject((String) jsonData);
+                jsonArray = jsonObject.getJSONArray("results");
+            } catch (JSONException e) {
+                Log.d("Places", "parse error");
+                e.printStackTrace();
+            }
+            return getPlaces(jsonArray);
+        }
 
-		private List<HashMap<String, String>> getPlaces(JSONArray jsonArray) {
-			int placesCount = jsonArray.length();
-			List<HashMap<String, String>> placesList = new ArrayList<>();
-			HashMap<String, String> placeMap = null;
-			Log.d("Places", "getPlaces");
+        private List<HashMap<String, String>> getPlaces(JSONArray jsonArray) {
+            int placesCount = jsonArray.length();
+            List<HashMap<String, String>> placesList = new ArrayList<>();
+            HashMap<String, String> placeMap = null;
+            Log.d("Places", "getPlaces");
 
-			for (int i = 0; i < placesCount; i++) {
-				try {
-					placeMap = getPlace((JSONObject) jsonArray.get(i));
-					placesList.add(placeMap);
-					Log.d("Places", "Adding places");
+            for (int i = 0; i < placesCount; i++) {
+                try {
+                    placeMap = getPlace((JSONObject) jsonArray.get(i));
+                    placesList.add(placeMap);
 
-				} catch (JSONException e) {
-					Log.d("Places", "Error in Adding places");
-					e.printStackTrace();
-				}
-			}
-			return placesList;
-		}
+                    gymsList.add(new Gym(placeMap.get("place_name"), (int) calculationByDistance(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()),
+                            new LatLng(Double.parseDouble(placeMap.get("lat")), Double.parseDouble(placeMap.get("lng")))),
+                            Double.parseDouble(placeMap.get("rating")), new Location(placeMap.get("location"))));
 
-		private HashMap<String, String> getPlace(JSONObject googlePlaceJson) {
-			HashMap<String, String> googlePlaceMap = new HashMap<String, String>();
-			String placeName = "-NA-";
-			String vicinity = "-NA-";
-			String latitude = "";
-			String longitude = "";
-			String reference = "";
+                    Log.d("Places", "Adding places");
 
-			Log.d("getPlace", "Entered");
+                } catch (JSONException e) {
+                    Log.d("Places", "Error in Adding places");
+                    e.printStackTrace();
+                }
+            }
+            return placesList;
+        }
 
-			try {
-				if (!googlePlaceJson.isNull("name")) {
-					placeName = googlePlaceJson.getString("name");
-				}
-				if (!googlePlaceJson.isNull("vicinity")) {
-					vicinity = googlePlaceJson.getString("vicinity");
-				}
-				latitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lat");
-				longitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lng");
-				reference = googlePlaceJson.getString("reference");
-				googlePlaceMap.put("place_name", placeName);
-				googlePlaceMap.put("vicinity", vicinity);
-				googlePlaceMap.put("lat", latitude);
-				googlePlaceMap.put("lng", longitude);
-				googlePlaceMap.put("reference", reference);
-				Log.d("getPlace", "Putting Places");
-			} catch (JSONException e) {
-				Log.d("getPlace", "Error");
-				e.printStackTrace();
-			}
-			return googlePlaceMap;
-		}
-	}
+        private HashMap<String, String> getPlace(JSONObject googlePlaceJson) {
+            HashMap<String, String> googlePlaceMap = new HashMap<String, String>();
+            String placeName = "-NA-";
+            String vicinity = "-NA-";
+            String latitude = "";
+            String longitude = "";
+            String reference = "";
+            String rating = "";
+            String location = "";
 
-	private class DownloadUrl {
+            Log.d("getPlace", "Entered");
 
-		public String readUrl(String strUrl) throws IOException {
-			String data = "";
-			InputStream iStream = null;
-			HttpURLConnection urlConnection = null;
-			try {
-				URL url = new URL(strUrl);
+            try {
+                if (!googlePlaceJson.isNull("name")) {
+                    placeName = googlePlaceJson.getString("name");
+                }
+                if (!googlePlaceJson.isNull("vicinity")) {
+                    vicinity = googlePlaceJson.getString("vicinity");
+                }
+                if (!googlePlaceJson.isNull("rating")) {
+                    rating = googlePlaceJson.getString("rating");
+                } else {
+                    rating = "0.0";
+                }
+                if (!googlePlaceJson.isNull("geometry")) {
+                    location = googlePlaceJson.getJSONObject("geometry").getString("location");
+                }
+                latitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lat");
+                longitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lng");
+                reference = googlePlaceJson.getString("reference");
+                googlePlaceMap.put("place_name", placeName);
+                googlePlaceMap.put("vicinity", vicinity);
+                googlePlaceMap.put("lat", latitude);
+                googlePlaceMap.put("lng", longitude);
+                googlePlaceMap.put("reference", reference);
+                googlePlaceMap.put("rating", rating);
+                googlePlaceMap.put("location", location);
+                Log.d("getPlace", "Putting Places");
+            } catch (JSONException e) {
+                Log.d("getPlace", "Error");
+                e.printStackTrace();
+            }
+            return googlePlaceMap;
+        }
+    }
 
-				// Creating an http connection to communicate with url
-				urlConnection = (HttpURLConnection) url.openConnection();
+    private class DownloadUrl {
 
-				// Connecting to url
-				urlConnection.connect();
+        public String readUrl(String strUrl) throws IOException {
+            String data = "";
+            InputStream iStream = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL(strUrl);
 
-				// Reading data from url
-				iStream = urlConnection.getInputStream();
+                // Creating an http connection to communicate with url
+                urlConnection = (HttpURLConnection) url.openConnection();
 
-				BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+                // Connecting to url
+                urlConnection.connect();
 
-				StringBuffer sb = new StringBuffer();
+                // Reading data from url
+                iStream = urlConnection.getInputStream();
 
-				String line = "";
-				while ((line = br.readLine()) != null) {
-					sb.append(line);
-				}
+                BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
 
-				data = sb.toString();
-				Log.d("downloadUrl", data.toString());
-				br.close();
+                StringBuffer sb = new StringBuffer();
 
-			} catch (Exception e) {
-				Log.d("Exception", e.toString());
-			} finally {
-				iStream.close();
-				urlConnection.disconnect();
-			}
-			return data;
-		}
-	}
+                String line = "";
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                data = sb.toString();
+                Log.d("downloadUrl", data.toString());
+                br.close();
+
+            } catch (Exception e) {
+                Log.d("Exception", e.toString());
+            } finally {
+                iStream.close();
+                urlConnection.disconnect();
+            }
+            return data;
+        }
+    }
+
+    public double calculationByDistance(LatLng StartP, LatLng EndP) {
+        int Radius = 6371;// radius of earth in Km
+        double lat1 = StartP.latitude;
+        double lat2 = EndP.latitude;
+        double lon1 = StartP.longitude;
+        double lon2 = EndP.longitude;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        double km = valueResult / 1;
+        DecimalFormat newFormat = new DecimalFormat("####");
+        int kmInDec = Integer.valueOf(newFormat.format(km));
+        double meter = valueResult % 1000;
+        int meterInDec = Integer.valueOf(newFormat.format(meter));
+        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec
+                + " Meter   " + meterInDec);
+
+        return Radius * c;
+    }
 }
