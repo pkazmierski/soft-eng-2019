@@ -3,6 +3,7 @@ package pl.se.fitnessapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -74,7 +75,9 @@ public class NavigationDrawerActivity extends AppCompatActivity implements Navig
                 //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));
                 break;
             case R.id.nav_logoff:
-                //logoff rotine
+                AWSMobileClient.getInstance().signOut();
+                finishAffinity();
+                startActivity(new Intent(this, AuthenticationActivity.class));
                 break;
             default:
                 throw new Error("No such navigation ID exists.");

@@ -7,6 +7,45 @@
     <string name="nav_header_subtitle">TUL 2019/2020</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="register">Register</string>
+    <string name="delete">Delete account</string>
+    <string name="register_link">Register</string>
+    <string name="forgot">Forgot your password?</string>
+    <string name="full_name">Full name</string>
+    <string name="email">Email</string>
+    <string name="age">Age</string>
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="active">Physical activity</string>
+    <string name="goal">Goal of exercises</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="show_password">Show password</string>
+    <string name="enter_location">Enter location</string>
+    <string name="reset">Enter username to reset password</string>
+    <string name="rest">Reset password</string>
+    <string name="conf">Confirm</string>
+    <string name="verify">Verify</string>
+    <string name="verification_code">Enter verification code</string>
+    <string name="conf_code">Enter confirmation code</string>
+    <string name="pass">Enter new password</string>
+
+    <string-array name="spinnerActivity">
+        <item>Sedentary active: No sport or exercise</item>
+        <item>Lightly active (light exercise or sports: 1 or 3 days per week)</item>
+        <item>Moderately active (moderate exercise or sports: 3 or 5 days per week)</item>
+        <item>Active (hard exercise or sports or physical job: 6 or 7 days per week)</item>
+        <item>Very active (very hard exercise or sports and physical job or 2x training)</item>
+    </string-array>
+
+    <string-array name="goals">
+        <item>Gain muscles</item>
+        <item>Increase stamina</item>
+    </string-array>
 
     <string name="data">Data</string>
     <string name="user">User</string>
