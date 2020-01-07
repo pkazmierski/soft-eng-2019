@@ -1,5 +1,7 @@
 package pl.se.fitnessapp.activities;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
@@ -49,6 +51,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -62,7 +65,7 @@ import java.util.List;
 import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.logic.GymEngine;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends NavigationDrawerActivity implements OnMapReadyCallback {
 
     public static final String FIND_GYMS = "Find Gyms";
     public static final String CLEAR_MAP = "Clear Map";
@@ -84,7 +87,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        //setContentView(R.layout.activity_map);
+
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        @SuppressWarnings("ConstantConditions") @SuppressLint("InflateParams")
+        View contentView = inflater.inflate(R.layout.activity_map, null, false);
+        drawer.addView(contentView, 0);
 
         //materialSearchBar = findViewById(R.id.searchBar);
         //gymEngine = new GymEngine();
