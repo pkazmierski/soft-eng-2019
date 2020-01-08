@@ -1,20 +1,13 @@
 package pl.se.fitnessapp.activities;
 
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
-import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.model.LocalIngredient;
 
 public class DishItem extends AppCompatActivity {
     private int mImageResource;
-    private ImageButton mImageButton;
     private String mDishTitle;
     private List<LocalIngredient> mDishListIngredients;
     private String mRecipeContent;
@@ -28,19 +21,12 @@ public class DishItem extends AppCompatActivity {
         mRecipeContent = dishRecipe;
         mDishIngredients = "Ingredients:";
         mRecipe = "Recipe:";
-        mImageButton = (ImageButton)findViewById(R.id.button_add_to_calendar_food);
-
-    }
-
-    public void addToCalendar(View view) {
-
     }
 
     @Override
     public String toString() {
         return "mDishListIngredients=" + mDishListIngredients;
     }
-
 
     public int getImageResource() {
         return mImageResource;
@@ -64,10 +50,6 @@ public class DishItem extends AppCompatActivity {
 
     public String getmRecipe() {
         return mRecipe;
-    }
-
-    public ImageButton getmImageButton() {
-        return mImageButton;
     }
 
 }

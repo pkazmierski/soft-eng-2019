@@ -2,20 +2,8 @@ package pl.se.fitnessapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageButton;
-
-import java.time.Duration;
-import java.util.List;
-
-import pl.se.fitnessapp.R;
-import pl.se.fitnessapp.model.Difficulty;
-import pl.se.fitnessapp.model.LocalIngredient;
-
 public class ExerciseItem extends AppCompatActivity {
     private int mImageResource;
-    private ImageButton mImageButton;
     private String mExerciseTitle;
     private String mTrainingPlan;
     private String mContent;
@@ -33,12 +21,6 @@ public class ExerciseItem extends AppCompatActivity {
         mTrainingPlan = "Training plan: ";
         mDurationTextView = "Duration: ";
         mDifficultyTextView = "Difficulty: ";
-        //mImageButton = (ImageButton)findViewById(R.id.button_add_to_calendar_exercises_v);
-
-    }
-
-    public void addExerciseToCalendar(View view) {
-
     }
 
     public int getImageResource() {
@@ -73,7 +55,4 @@ public class ExerciseItem extends AppCompatActivity {
         return mDifficulty;
     }
 
-    public ImageButton getmImageButton() {
-        return mImageButton;
-    }
 }

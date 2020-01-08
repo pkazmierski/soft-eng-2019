@@ -3,7 +3,6 @@ package pl.se.fitnessapp.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,7 +19,6 @@ public class ExercisesAdapter extends RecyclerView.Adapter<ExercisesAdapter.MyVi
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView mImageView;
-        public ImageButton mImageButton;
         public TextView mExerciseTitle;
         public TextView mTrainingPlan;
         public TextView mContent;
@@ -33,7 +31,6 @@ public class ExercisesAdapter extends RecyclerView.Adapter<ExercisesAdapter.MyVi
         public MyViewHolder(View itemView) {
             super(itemView);
             mImageView = itemView.findViewById(R.id.ExerciseImageView);
-            mImageButton = itemView.findViewById(R.id.button_add_to_calendar_exercises_v);
             mExerciseTitle = itemView.findViewById(R.id.exerciseNameTextView);
             mTrainingPlan = itemView.findViewById(R.id.trainingPlanTextView);
             mContent = itemView.findViewById(R.id.contentView);
