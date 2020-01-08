@@ -57,9 +57,13 @@ public class NavigationDrawerActivity extends AppCompatActivity implements Navig
         switch (id) {
             case R.id.nav_dishes:
                 //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));
+                Intent intentD = new Intent(this, DishesActivity.class);
+                startActivity(intentD);
                 break;
             case R.id.nav_exercises:
                 //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));
+                Intent intentE = new Intent(this, ExerciseActivity.class);
+                startActivity(intentE);
                 break;
             case R.id.nav_gcalendar_export:
                 //startAnimatedActivity(new Intent(getApplicationContext(), ReplaceMe.class));
