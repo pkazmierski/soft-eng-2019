@@ -2,6 +2,8 @@ package pl.se.fitnessapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import pl.se.fitnessapp.R;
+import pl.se.fitnessapp.model.Goal;
+import pl.se.fitnessapp.model.PhysicalActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 public class RegisterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
     EditText name1, email1, username1, password1, verificationCode, age1, height1, weight1;
-    Button buttonRegister, buttonLocation, buttonVerify;
+    Button buttonRegister, buttonVerify;
     CheckBox checkBoxPassword;
     Spinner spinner, goalSpinner;
     TextView name2, email2, username2, password2, verify, age, height2, weight2, activity, goal;
@@ -48,7 +50,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     String exerciseGoal;
     String gender = "1";
 
-    //LatLng location = null;
 
     private static final String TAG = "RegisterActivity";
 
@@ -70,7 +71,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         verificationCode = (EditText) findViewById(R.id.verification_code);
         buttonRegister = (Button) findViewById(R.id.buttonRegister);
         buttonVerify = (Button) findViewById(R.id.verifyButton);
-        buttonLocation = (Button) findViewById(R.id.buttonLocation);
         checkBoxPassword = (CheckBox) findViewById(R.id.checkBoxPassword);
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         scroll = (ScrollView) findViewById(R.id.scroll);
@@ -124,36 +124,31 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         Spinner spinGoal = (Spinner) parent;
         if(spin.getId() == R.id.signUpPhysicalActivity)
         {
-            active = parent.getItemAtPosition(position).toString();
+            if (parent.getItemAtPosition(position).toString().equals("Sedentary active: No sport or exercise")) {
+                active = PhysicalActivity.SEDENTARY.toString();
+            } else if (parent.getItemAtPosition(position).toString().equals("Lightly active (light exercise or sports: 1 or 3 days per week)")) {
+                active = PhysicalActivity.LIGHT.toString();
+            } else if (parent.getItemAtPosition(position).toString().equals("Moderately active (moderate exercise or sports: 3 or 5 days per week)")) {
+                active = PhysicalActivity.MODERATE.toString();
+            } else if (parent.getItemAtPosition(position).toString().equals("Active (hard exercise or sports or physical job: 6 or 7 days per week)")) {
+                active = PhysicalActivity.ACTIVE.toString();
+            } else if (parent.getItemAtPosition(position).toString().equals("Very active (very hard exercise or sports and physical job or 2x training)")) {
+                active = PhysicalActivity.VERY_ACTIVE.toString();
+            }
         }
         if(spinGoal.getId() == R.id.signUpGoal)
         {
-            exerciseGoal = parent.getItemAtPosition(position).toString();
+            if (parent.getItemAtPosition(position).toString().equals("Gain muscles")) {
+                exerciseGoal = Goal.MUSCLES.toString();
+            } else if (parent.getItemAtPosition(position).toString().equals("Increase stamina")) {
+                exerciseGoal = Goal.STAMINA.toString();
+            }
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
-    }
-
-    public void getLocationBtn(View view) {
-        //Intent i = new Intent(this, LocationPermissionActivity.class);
-        //startActivityForResult(i, 1);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                //location = data.getParcelableExtra("location");
-                //Log.d(TAG, "gotLocation: " + location);
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Toast.makeText(getApplicationContext(), "Location not chosen", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     public void checkRadioButton (View v) {
@@ -187,12 +182,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         attributes.put("custom:goal", exerciseGoal);//custom:goal
         attributes.put("custom:physicalActivity", active);//custom:physicalActivity
         attributes.put("custom:gender", gender);//custom:gender (0,1)
-        //attributes.put("custom:location", location == null ? "" : location.toString());//custom:location
 
-        /*if(location == null) {
-            Toast.makeText(getApplicationContext(), "Choose your location", Toast.LENGTH_SHORT).show();
-            return;
-        }*/
 
         if (TextUtils.isEmpty(name)) {
             Toast.makeText(getApplicationContext(), "Enter name", Toast.LENGTH_SHORT).show();
@@ -306,7 +296,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         goalSpinner.setVisibility(View.GONE);
         checkBoxPassword.setVisibility(View.GONE);
         buttonRegister.setVisibility(View.GONE);
-        buttonLocation.setVisibility(View.GONE);
         scroll.setVisibility(View.GONE);
 
         name2.setVisibility(View.GONE);
@@ -349,17 +338,10 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                                         Log.d(TAG, "Sign-in callback state: " + signInResult.getSignInState());
                                         switch (signInResult.getSignInState()) {
                                             case DONE:
-                                                Toast.makeText(getApplicationContext(),"Sign-in done.", Toast.LENGTH_SHORT).show();
-                                                Intent i = new Intent(RegisterActivity.this, MainActivity.class);
+                                                Toast.makeText(getApplicationContext(),"Sign-in done. You can now sign-up.", Toast.LENGTH_SHORT).show();
+                                                AWSMobileClient.getInstance().signOut();
+                                                Intent i = new Intent(RegisterActivity.this, AuthenticationActivity.class);
                                                 startActivity(i);
-
-                                                Runnable createUserDataSuccess = () -> {
-                                                    Log.d(TAG, "sign-up: created user data in DynamoDB");
-                                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(),"Sign-up done.", Toast.LENGTH_SHORT).show());
-                                                    Intent ii = new Intent(RegisterActivity.this, MainActivity.class);
-                                                    startActivity(ii);
-                                                };
-                                                Runnable createUserDataFailure = () -> Log.d(TAG, "sign-up: failed to create user data in DynamoDB");
 
                                                 break;
                                             case PASSWORD_VERIFIER:
