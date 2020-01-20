@@ -2,11 +2,18 @@ package pl.se.fitnessapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import pl.se.fitnessapp.R;
+import pl.se.fitnessapp.logic.DBProvider;
+import pl.se.fitnessapp.model.DatabaseIngredient;
+import pl.se.fitnessapp.model.Dish;
+import pl.se.fitnessapp.model.Exercise;
 import pl.se.fitnessapp.model.Goal;
+import pl.se.fitnessapp.model.Personal;
 import pl.se.fitnessapp.model.PhysicalActivity;
+import pl.se.fitnessapp.model.Sex;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
@@ -32,24 +39,25 @@ import com.amazonaws.mobile.client.results.SignInResult;
 import com.amazonaws.mobile.client.results.SignUpResult;
 import com.amazonaws.mobile.client.results.UserCodeDeliveryDetails;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class RegisterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
-    EditText name1, email1, username1, password1, verificationCode, age1, height1, weight1;
+    EditText email1, username1, password1, verificationCode, age1, height1, weight1;
     Button buttonRegister, buttonVerify;
     CheckBox checkBoxPassword;
     Spinner spinner, goalSpinner;
-    TextView name2, email2, username2, password2, verify, age, height2, weight2, activity, goal;
+    TextView email2, username2, password2, verify, age, height2, weight2, activity, goal;
     RadioGroup radioGroup;
     RadioButton radioButton;
     ScrollView scroll;
-    String active;
-    String exerciseGoal;
-    String gender = "1";
-
+    Goal g;
+    PhysicalActivity p;
+    Sex s;
 
     private static final String TAG = "RegisterActivity";
 
@@ -61,7 +69,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        name1 = (EditText) findViewById(R.id.signUpName);
         email1 = (EditText) findViewById(R.id.signUpEmail);
         username1 = (EditText) findViewById(R.id.signUpUsername);
         password1 = (EditText) findViewById(R.id.signUpPassword);
@@ -75,7 +82,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         scroll = (ScrollView) findViewById(R.id.scroll);
 
-        name2 = (TextView) findViewById(R.id.name);
         email2 = (TextView) findViewById(R.id.email);
         username2 = (TextView) findViewById(R.id.username);
         password2 = (TextView) findViewById(R.id.password);
@@ -125,23 +131,28 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         if(spin.getId() == R.id.signUpPhysicalActivity)
         {
             if (parent.getItemAtPosition(position).toString().equals("Sedentary active: No sport or exercise")) {
-                active = PhysicalActivity.SEDENTARY.toString();
+
+                p = PhysicalActivity.SEDENTARY;
             } else if (parent.getItemAtPosition(position).toString().equals("Lightly active (light exercise or sports: 1 or 3 days per week)")) {
-                active = PhysicalActivity.LIGHT.toString();
+
+                p = PhysicalActivity.LIGHT;
             } else if (parent.getItemAtPosition(position).toString().equals("Moderately active (moderate exercise or sports: 3 or 5 days per week)")) {
-                active = PhysicalActivity.MODERATE.toString();
+
+                p = PhysicalActivity.MODERATE;
             } else if (parent.getItemAtPosition(position).toString().equals("Active (hard exercise or sports or physical job: 6 or 7 days per week)")) {
-                active = PhysicalActivity.ACTIVE.toString();
+
+                p = PhysicalActivity.ACTIVE;
             } else if (parent.getItemAtPosition(position).toString().equals("Very active (very hard exercise or sports and physical job or 2x training)")) {
-                active = PhysicalActivity.VERY_ACTIVE.toString();
+
+                p = PhysicalActivity.VERY_ACTIVE;
             }
         }
         if(spinGoal.getId() == R.id.signUpGoal)
         {
             if (parent.getItemAtPosition(position).toString().equals("Gain muscles")) {
-                exerciseGoal = Goal.MUSCLES.toString();
+                g = Goal.MUSCLES;
             } else if (parent.getItemAtPosition(position).toString().equals("Increase stamina")) {
-                exerciseGoal = Goal.STAMINA.toString();
+                g = Goal.STAMINA;
             }
         }
     }
@@ -157,9 +168,9 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         radioButton = (RadioButton) findViewById(radioId);
 
         if(radioId == R.id.male) {
-            gender = "1";
+            s = Sex.MALE;
         } else if (radioId == R.id.female) {
-            gender = "0";
+            s = Sex.FEMALE;
         }
     }
 
@@ -167,27 +178,12 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         final String username = username1.getText().toString();
         final String password = password1.getText().toString();
         final String email = email1.getText().toString();
-        final String name = name1.getText().toString();
-        final String age = age1.getText().toString();
-        final String height = height1.getText().toString();
-        final String weight = weight1.getText().toString();
         checkRadioButton(view);
+
 
         final Map<String, String> attributes = new HashMap<>();
         attributes.put("email", email);
-        attributes.put("custom:name", name);
-        attributes.put("custom:age", age);
-        attributes.put("custom:height", height);//custom:height
-        attributes.put("custom:weight", weight);//custom:weight
-        attributes.put("custom:goal", exerciseGoal);//custom:goal
-        attributes.put("custom:physicalActivity", active);//custom:physicalActivity
-        attributes.put("custom:gender", gender);//custom:gender (0,1)
 
-
-        if (TextUtils.isEmpty(name)) {
-            Toast.makeText(getApplicationContext(), "Enter name", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), "Enter email", Toast.LENGTH_SHORT).show();
@@ -204,16 +200,16 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             return;
         }
 
-        if (TextUtils.isEmpty(age)) {
+        if (TextUtils.isEmpty(age1.getText().toString())) {
             Toast.makeText(getApplicationContext(), "Enter age", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(height)) {
+        if (TextUtils.isEmpty(height1.getText().toString())) {
             Toast.makeText(getApplicationContext(), "Enter height", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (TextUtils.isEmpty(weight)) {
+        if (TextUtils.isEmpty(weight1.getText().toString())) {
             Toast.makeText(getApplicationContext(), "Enter weight", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -281,7 +277,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     private void updateUI() {
 
-        name1.setVisibility(View.GONE);
         email1.setVisibility(View.GONE);
         username1.setVisibility(View.GONE);
         password1.setVisibility(View.GONE);
@@ -298,7 +293,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         buttonRegister.setVisibility(View.GONE);
         scroll.setVisibility(View.GONE);
 
-        name2.setVisibility(View.GONE);
         email2.setVisibility(View.GONE);
         username2.setVisibility(View.GONE);
         password2.setVisibility(View.GONE);
@@ -338,9 +332,37 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                                         Log.d(TAG, "Sign-in callback state: " + signInResult.getSignInState());
                                         switch (signInResult.getSignInState()) {
                                             case DONE:
-                                                Toast.makeText(getApplicationContext(),"Sign-in done. You can now sign-up.", Toast.LENGTH_SHORT).show();
-                                                AWSMobileClient.getInstance().signOut();
-                                                Intent i = new Intent(RegisterActivity.this, AuthenticationActivity.class);
+                                                final int age = Integer.parseInt(age1.getText().toString());
+                                                final int height = Integer.parseInt(height1.getText().toString());
+                                                final double weight = Double.parseDouble(weight1.getText().toString());
+                                                List<DatabaseIngredient> allergies = new ArrayList<>();
+                                                List<Dish> recommendedDishes = new ArrayList<>();
+                                                List<Exercise> recommendedExercises = new ArrayList<>();
+                                                Location location = new Location("local");
+                                                location.setLatitude(0);
+                                                location.setLongitude(0);
+
+                                                Personal personal = new Personal();
+                                                personal.setWeight(weight);
+                                                personal.setHeight(height);
+                                                personal.setGoal(g);
+                                                personal.setSex(s);
+                                                personal.setAge(age);
+                                                personal.setPhysicalActivity(p);
+                                                personal.setHome(location);
+                                                personal.calculateAndSetBmr();
+                                                personal.calculateAndSetBmi();
+                                                personal.setAllergies(allergies);
+                                                personal.setRecommendedDishes(recommendedDishes);
+                                                personal.setRecommendedExercises(recommendedExercises);
+
+                                                Runnable logCreatePersonal = () -> Log.d("createPersonalData", "created personal: " + personal.toString());
+                                                Runnable logFailedPersonal = () -> Log.d("createPersonalData", "failed to create personal: " + personal.toString());
+
+                                                DBProvider.getInstance().getIDBPersonal().createPersonal(logCreatePersonal, logFailedPersonal, personal);
+
+                                                Toast.makeText(getApplicationContext(),"Sign-in done.", Toast.LENGTH_SHORT).show();
+                                                Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                                                 startActivity(i);
 
                                                 break;
