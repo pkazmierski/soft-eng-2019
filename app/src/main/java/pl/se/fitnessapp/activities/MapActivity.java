@@ -143,7 +143,7 @@ public class MapActivity extends NavigationDrawerActivity implements OnMapReadyC
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-                    Toast.makeText(MapActivity.this, "Nearby Gyms", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(MapActivity.this, "Nearby Gyms", Toast.LENGTH_LONG).show();
                     btnFind.setText(CLEAR_MAP);
                 } else{
                     mMap.clear();

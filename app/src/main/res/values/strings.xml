@@ -20,5 +20,5 @@
     <string name="googleCalendarExport">Google Calendar</string>
     <string name="gyms">Gyms</string>
     <string name="title_activity_map">Find Gyms</string>
-    <string name="title_activity_map_permission">MapPermissionActivity</string>
+    <string name="title_activity_map_permission">Location permission</string>
 </resources>
