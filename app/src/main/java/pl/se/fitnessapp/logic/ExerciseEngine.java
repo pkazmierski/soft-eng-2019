@@ -8,11 +8,19 @@ public class ExerciseEngine implements IExercises {
 
 	public ExerciseEngine() {
 		// TODO - implement ExerciseEngine.ExerciseEngine
+
 		throw new UnsupportedOperationException();
 	}
 
+
+	//Create things here
 	@Override
 	public void generateRecommendations(Runnable onGenerated, List<Exercise> dishStorage) {
 
+
+
 	}
+
+
+
 }
