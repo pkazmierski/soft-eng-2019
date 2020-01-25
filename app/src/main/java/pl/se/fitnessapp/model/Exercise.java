@@ -1,6 +1,7 @@
 package pl.se.fitnessapp.model;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -43,7 +44,8 @@ public class Exercise implements IEvent {
 	@Override
 	public LocalDateTime getDate() {
 		//todo implement Exercise.getDate()
-		return null;
+		LocalDateTime date = LocalDate.now().atTime(18, 0, 0);
+		return date;
 	}
 
 	public String getId() {

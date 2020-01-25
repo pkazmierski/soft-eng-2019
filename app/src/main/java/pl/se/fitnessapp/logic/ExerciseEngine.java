@@ -2,7 +2,6 @@ package pl.se.fitnessapp.logic;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -18,32 +17,34 @@ import static pl.se.fitnessapp.model.Difficulty.MEDIUM;
 
 public class ExerciseEngine implements IExercises {
 
+	//Atributes
 	private String BMIStatus; //Normal, Under_Normal_Weight, Over_Normal_Weight
-	Personal P = new Personal();
-	int numberOfExercises;
+	public int numberOfExercises;
 	public List<Exercise> recommendedExercises;
 	public List<Exercise> possibleExerciseRecommendations;
-	boolean generateRecommendationsIsRunning;
+	public boolean generateRecommendationsIsRunning;
+	Personal P;
 
+	//Receive Personal object
+	public void setPersonal(Personal p) {
+		P = p;
+	}
+
+
+	//Getters
 	public List<Exercise> getRecommendedExercises() {
 		return recommendedExercises;
 	}
-
 	public List<Exercise> getPossibleExerciseRecommendations() {
 		return possibleExerciseRecommendations;
 	}
-
 	public boolean isGenerateRecommendationsIsRunning() {
 		return generateRecommendationsIsRunning;
 	}
-
 	public IEvent getExerciseEvent() {
 		return exerciseEvent;
 	}
-
 	public IEvent exerciseEvent;
-
-
 
 
 	public ExerciseEngine() {
@@ -54,11 +55,11 @@ public class ExerciseEngine implements IExercises {
 	}
 
 
+
 	@Override
 	public void generateRecommendations(Runnable onGenerated, List<Exercise> exerciseStorage) {
 
 		generateRecommendationsIsRunning = true;
-
 		possibleExerciseRecommendations.clear();
 		recommendedExercises.clear();
 
