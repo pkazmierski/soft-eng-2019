@@ -16,6 +16,7 @@ import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.adapters.DishesAdapter;
 import pl.se.fitnessapp.logic.IDishes;
 import pl.se.fitnessapp.model.Dish;
+import pl.se.fitnessapp.model.DishItem;
 
 public class DishesActivity extends NavigationDrawerActivity {
 

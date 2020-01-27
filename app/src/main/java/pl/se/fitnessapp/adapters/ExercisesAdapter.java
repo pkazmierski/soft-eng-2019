@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import pl.se.fitnessapp.R;
-import pl.se.fitnessapp.activities.ExerciseItem;
+import pl.se.fitnessapp.model.ExerciseItem;
 
 public class ExercisesAdapter extends RecyclerView.Adapter<ExercisesAdapter.MyViewHolder>{
     private ArrayList<ExerciseItem> mExerciseList;

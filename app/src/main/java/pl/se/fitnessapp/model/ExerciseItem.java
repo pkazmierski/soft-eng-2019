@@ -1,4 +1,4 @@
-package pl.se.fitnessapp.activities;
+package pl.se.fitnessapp.model;
 
 import androidx.appcompat.app.AppCompatActivity;
 

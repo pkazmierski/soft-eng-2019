@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import pl.se.fitnessapp.R;
-import pl.se.fitnessapp.activities.DishItem;
+import pl.se.fitnessapp.model.DishItem;
 
 public class DishesAdapter extends RecyclerView.Adapter<DishesAdapter.MyViewHolder> {
     private ArrayList<DishItem> mDishesList;

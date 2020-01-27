@@ -16,6 +16,7 @@ import pl.se.fitnessapp.R;
 import pl.se.fitnessapp.adapters.ExercisesAdapter;
 import pl.se.fitnessapp.logic.IExercises;
 import pl.se.fitnessapp.model.Exercise;
+import pl.se.fitnessapp.model.ExerciseItem;
 
 
 public class ExerciseActivity extends NavigationDrawerActivity {
