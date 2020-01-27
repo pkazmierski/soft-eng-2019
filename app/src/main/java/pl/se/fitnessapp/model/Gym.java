@@ -18,7 +18,10 @@ public class Gym {
 	 */
 	public Gym(String name, int distance, double rating, Location location) {
 		// TODO - implement Gym.Gym
-		throw new UnsupportedOperationException();
+		this.name = name;
+		this.distance = distance;
+		this.rating = rating;
+		this.location = location;
 	}
 
 	public String getName() {
