@@ -1,5 +1,6 @@
 package pl.se.fitnessapp.logic;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Iterator;
@@ -10,6 +11,7 @@ import pl.se.fitnessapp.model.Exercise;
 import pl.se.fitnessapp.model.Goal;
 import pl.se.fitnessapp.model.IEvent;
 import pl.se.fitnessapp.model.Personal;
+import pl.se.fitnessapp.model.Preferences;
 
 import static pl.se.fitnessapp.model.Difficulty.EASY;
 import static pl.se.fitnessapp.model.Difficulty.HARD;
@@ -23,11 +25,16 @@ public class ExerciseEngine implements IExercises {
 	public List<Exercise> recommendedExercises;
 	public List<Exercise> possibleExerciseRecommendations;
 	public boolean generateRecommendationsIsRunning;
-	Personal P;
+	Personal mPersonal;
+	Preferences mPreferences;
 
-	//Receive Personal object
-	public void setPersonal(Personal p) {
-		P = p;
+	//Receive Personal
+	public void setmPersonal(Personal p) {
+		mPersonal = p;
+	}
+	//Receive Preferences
+	public void setmPreferences(Preferences mPreferences) {
+		this.mPreferences = mPreferences;
 	}
 
 
@@ -65,7 +72,7 @@ public class ExerciseEngine implements IExercises {
 
 		setNumberOfExercises();
 		calculateBMIStatus();
-		Goal goal = P.getGoal();
+		Goal goal = mPersonal.getGoal();
 
 
 		//Get all possible exercises to recommend.
@@ -98,13 +105,47 @@ public class ExerciseEngine implements IExercises {
 		//Get exercises to recommend.
 		List<Exercise> l = possibleExerciseRecommendations;
 		Random rand = new Random();
+		Duration recommendationDuration = null;
+		boolean selectingRecomendations = true;
+		Duration d = mPreferences.getExerciseDuration();
+		Exercise longestRecommended = null; //Exercise recommended with the highest duration.
 
-		for(int i=0; i<numberOfExercises; i++){
+		while (selectingRecomendations){
 			int random = rand.nextInt(l.size());
 			Exercise randomExercise = l.get(random);
 			l.remove(random);
 			recommendedExercises.add(randomExercise);
+			recommendationDuration = recommendationDuration.plus(randomExercise.getDuration());
+			//Save if is the longest recommended so far:
+			if (recommendedExercises.size()==1){
+				longestRecommended = randomExercise;
+			} else if (randomExercise.getDuration().compareTo(longestRecommended.getDuration()) == 1){
+				longestRecommended = randomExercise;
+			}
+
+			//Conditions where recommended exercises list is acceptable:
+			if (recommendationDuration.compareTo(d) == 0){
+				selectingRecomendations = false;
+			}
+			else if (recommendationDuration.compareTo(d) == -1){
+				if((recommendedExercises.size()<numberOfExercises) && checkPreferenceOfDuration(recommendationDuration, 10)){
+					selectingRecomendations = false;
+				}
+				else if ((recommendedExercises.size()>numberOfExercises) && checkPreferenceOfDuration(recommendationDuration, 20)){
+					selectingRecomendations = false;
+				}
+			}
+			else if (recommendationDuration.compareTo(d) == 1){
+				if(checkPreferenceOfDuration(recommendationDuration, 20)){
+					selectingRecomendations = false;
+				} else {
+					//remove longest exercise.
+					recommendedExercises.remove(longestRecommended);
+				}
+			}
+
 		}
+
 
 
 		//Generate event once recommendation is created
@@ -138,13 +179,11 @@ public class ExerciseEngine implements IExercises {
 		generateRecommendationsIsRunning = false;
 	}
 
-		//List<Exercise> exercisesRecomendationsList = new List<>();
-
 
 		//Set number of exercises according to personal physical activity
 		public void setNumberOfExercises () {
 
-			switch (P.getPhysicalActivity()) {
+			switch (mPersonal.getPhysicalActivity()) {
 
 				case SEDENTARY:
 					numberOfExercises = 1;
@@ -173,11 +212,11 @@ public class ExerciseEngine implements IExercises {
 		//Define BMI status according to age and gender
 		public void calculateBMIStatus () {
 
-			P.calculateAndSetBmi();
-			double BMI = P.getBmi();
-			int Age = P.getAge();
+			mPersonal.calculateAndSetBmi();
+			double BMI = mPersonal.getBmi();
+			int Age = mPersonal.getAge();
 
-			switch (P.getSex()) {
+			switch (mPersonal.getSex()) {
 				case MALE:
 					if (Age == 16) {
 
@@ -360,7 +399,19 @@ public class ExerciseEngine implements IExercises {
 			}
 		}
 
+		//Check a duration to be the duration established in preferences with different i% margins (of exerciseDuration)
+		private boolean checkPreferenceOfDuration(Duration duration, int i){
+			Duration d = mPreferences.getExerciseDuration();
+			int dE = Integer.parseInt(duration.toString());
+			int d1 = Integer.parseInt(d.toString()) * (100-i) / 100;
+			int d2 = Integer.parseInt(d.toString()) * (100+i) / 100;
+			if ((d1 < dE) && (dE < d2)){
+				return true;
+			} else {
+				return false;
+			}
+		}
 
+		//
 
 	}
-
