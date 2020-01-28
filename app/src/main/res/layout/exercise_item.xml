@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:theme="@style/AppTheme.NoActionBar"
+    app:cardCornerRadius="20dp"
+    android:layout_margin="15dp">
+
+    <RelativeLayout
+        android:id="@+id/relative_layout_exercises"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:autoSizeTextType="uniform"
+        android:background="#EFEFEF"
+        >
+
+        <ImageView
+            android:id="@+id/ExerciseImageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@string/exercises"
+            android:padding="4dp" />
+
+        <TextView
+            android:id="@+id/exerciseNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@+id/ExerciseImageView"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            android:textColor="#60B2D3"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/trainingPlanTextView"
+            android:layout_width="166dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ExerciseImageView"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="13dp"
+            android:layout_marginTop="13dp"
+            android:layout_marginEnd="224dp"
+            android:autoSizeTextType="uniform"
+            android:textColor="#60B2D3"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/contentView"
+            android:layout_width="162dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/trainingPlanTextView"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="226dp"
+            android:autoSizeTextType="uniform"
+            android:textColor="#898989"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/durationTextView"
+            android:layout_width="164dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/contentView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="47dp"
+            android:layout_toStartOf="@+id/difficultyTextView"
+            android:autoSizeTextType="uniform"
+            android:textColor="#60B2D3"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/durationView"
+            android:layout_width="163dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/durationTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="17dp"
+            android:layout_marginEnd="51dp"
+            android:layout_toStartOf="@+id/difficultyView"
+            android:autoSizeTextType="uniform"
+            android:textColor="#898989"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/difficultyTextView"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/contentView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="27dp"
+            android:autoSizeTextType="uniform"
+            android:textColor="#60B2D3"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/difficultyView"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/difficultyTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="25dp"
+            android:autoSizeTextType="uniform"
+            android:textColor="#898989"
+            android:textSize="15sp"
+            android:layout_marginBottom="15dp"/>
+
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

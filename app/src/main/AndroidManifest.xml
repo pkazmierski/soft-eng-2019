@@ -22,6 +22,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".model.ExerciseItem"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".activities.ExerciseActivity"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".adapters.ExercisesAdapter"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBQfaiHQGQvpGe0v2Bof6_PlpN621-1Nrk"/>
 
         <activity
@@ -38,12 +47,22 @@
             android:label="Register"
             android:launchMode="singleTask"
             android:noHistory="true"/>
-
+        <activity
+            android:name=".activities.DishesActivity"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".model.DishItem"
+            android:label="@string/title_activity_navigation_drawer"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.NavigationDrawerActivity"
-            android:label="@string/title_activity_navigation_drawer"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:label="Fitness App"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".adapters.DishesAdapter"
+            android:label="Fitness App"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.AuthenticationActivity"
             android:noHistory="true">
@@ -53,7 +72,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.MapActivity"
             android:label="@string/title_activity_map"
